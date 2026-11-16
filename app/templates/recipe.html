@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% from "_ui.html" import icon, numeral, warning with context %}
+{% block title %}{{ recipe.title }}{% endblock %}
+{% block content %}
+<a class="back" href="{{ '/recipes' if recipe.is_saved else '/cook/ideas' }}">{{ icon('back') }}{{ t('nav.saved') if recipe.is_saved else t('action.other_dishes') }}</a>
+<article class="leaf leaf-recipe{% if last_cooked %} is-cooked{% if request.query_params.get('cooked') %} is-fresh{% endif %}{% endif %}">
+  <header class="leaf-head">
+    <p class="leaf-rank">{{ t('leaf.written', day=local_day(recipe.created_at)) }}</p>
+    {% if last_cooked %}<p class="leaf-cooked">{{ t('leaf.cooked', day=local_day(last_cooked)) }}</p>{% endif %}
+  </header>
+  {{ numeral(have, total) }}
+  <h1 class="leaf-title">{{ recipe.title }}</h1>
+  {% if data.description %}<p class="leaf-blurb">{{ data.description }}</p>{% endif %}
+  <p class="leaf-foot">{{ t('cook.minutes', n=data.minutes) }} · {{ t('difficulty.' ~ data.difficulty) }} · {{ t('recipe.servings', n=data.servings) }}{% if data.cuisine %} · {{ data.cuisine }}{% endif %}</p>
+  {% if conflicts %}{{ warning(conflicts) }}{% endif %}
+  <h2 class="leaf-sub">{{ t('recipe.ingredients') }}</h2>
+  <ul class="amounts">
+    {% for item in data.ingredients %}
+    <li{% if not item.have %} class="is-missing"{% endif %}><span class="amount-name">{{ item.name }}{% if not item.have %} <span class="line-note">{{ t('recipe.need') }}</span>{% else %}<span class="visually-hidden"> ({{ t('ideas.have') }})</span>{% endif %}</span><span class="amount-qty">{{ item.amount }}</span></li>
+    {% endfor %}
+  </ul>
+</article>
+
+<section class="section">
+  <h2 class="section-head">{{ t('recipe.steps') }}</h2>
+  <ol class="steps">
+    {% for step in data.steps %}<li>{{ step }}</li>{% endfor %}
+  </ol>
+</section>
+
+{% if data.substitutions %}
+<section class="section">
+  <h2 class="section-head">{{ t('recipe.subs') }}</h2>
+  <ul class="plain">{% for line in data.substitutions %}<li>{{ line }}</li>{% endfor %}</ul>
+</section>
+{% endif %}
+
+{% if data.tips %}
+<section class="section">
+  <h2 class="section-head">{{ t('recipe.tips') }}</h2>
+  <ul class="plain">{% for line in data.tips %}<li>{{ line }}</li>{% endfor %}</ul>
+</section>
+{% endif %}
+
+<p class="hint">{{ t('recipe.ai_note') }}</p>
+
+<section class="section">
+  <h2 class="section-head">{{ t('recipe.cooked_title') }}</h2>
+  {% if times_cooked %}<p class="hint">{{ t('recipe.times_cooked', n=times_cooked) }}</p>{% endif %}
+  <form class="stack" method="post" action="/recipes/{{ recipe.id }}/cooked">
+    <fieldset class="choices choices-rating">
+      <legend>{{ t('recipe.rating') }}</legend>
+      {% for n in range(1, 6) %}
+      <label><input type="radio" name="rating" value="{{ n }}"><span>{{ n }}</span></label>
+      {% endfor %}
+      <label><input type="radio" name="rating" value="0" checked><span>{{ t('recipe.no_rating') }}</span></label>
+    </fieldset>
+    {% if used %}
+    <fieldset class="checklist">
+      <legend>{{ t('recipe.used_up') }}</legend>
+      {% for item in used %}
+      <label class="toggle"><input class="check" type="checkbox" name="used" value="{{ item.id }}"{% if item.category not in keeps %} checked{% endif %}><span>{{ item.name }}{% if item.quantity %} <span class="row-meta">{{ item.quantity }}</span>{% endif %}</span></label>
+      {% endfor %}
+    </fieldset>
+    {% endif %}
+    <button class="btn btn-primary">{{ t('recipe.log') }}</button>
+  </form>
+</section>
+
+<div class="actions">
+  <form class="actions-form" method="post" action="/recipes/{{ recipe.id }}/save">
+    <button class="btn btn-secondary btn-wide">{{ t('recipe.unsave') if recipe.is_saved else t('recipe.save') }}</button>
+  </form>
+  <form class="actions-form" method="post" action="/recipes/{{ recipe.id }}/delete">
+    <button class="btn btn-danger btn-wide">{{ t('recipe.delete') }}</button>
+  </form>
+</div>
+{% endblock %}

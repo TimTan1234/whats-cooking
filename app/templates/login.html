@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ t('login.title') }}{% endblock %}
+{% block content %}
+<section class="leaf leaf-form">
+  <header class="leaf-head">
+    <h1>{{ t('login.title') }}</h1>
+    <p class="leaf-date">{{ today }}</p>
+  </header>
+  {% if error %}<p class="notice notice-error" role="alert">{{ error }}</p>{% endif %}
+  <form class="stack" method="post" action="/login">
+    <label class="field"><span>{{ t('login.username') }}</span>
+      <input name="username" value="{{ username or '' }}" autocomplete="username" autocapitalize="none" spellcheck="false" required{% if not username %} autofocus{% endif %}></label>
+    <label class="field"><span>{{ t('login.password') }}</span>
+      <input type="password" name="password" autocomplete="current-password" required{% if username %} autofocus{% endif %}></label>
+    <button class="btn btn-primary">{{ t('login.submit') }}</button>
+  </form>
+</section>
+<p class="hint">{{ t('login.help') }}</p>
+{% endblock %}

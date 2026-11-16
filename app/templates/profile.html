@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{{ t('profile.title') }}{% endblock %}
+{% block content %}
+<h1>{{ t('profile.title') }}</h1>
+<p class="lead">{{ t('profile.signed_in', name=user.username) }}</p>
+<form class="stack" method="post" action="/profile">
+  <fieldset class="choices">
+    <legend>{{ t('profile.language') }}</legend>
+    <label><input type="radio" name="lang" value="en"{% if user.lang != 'zh' %} checked{% endif %}><span lang="en">English</span></label>
+    <label><input type="radio" name="lang" value="zh"{% if user.lang == 'zh' %} checked{% endif %}><span lang="zh-Hans">中文</span></label>
+  </fieldset>
+  <fieldset class="choices">
+    <legend>{{ t('profile.diet') }}</legend>
+    {% for diet in diets %}
+    <label><input type="checkbox" name="diets" value="{{ diet }}"{% if diet in user.diets %} checked{% endif %}><span>{{ t('diet.' ~ diet) }}</span></label>
+    {% endfor %}
+  </fieldset>
+  <fieldset class="choices">
+    <legend>{{ t('profile.allergies') }}</legend>
+    {% for allergen in allergens %}
+    <label><input type="checkbox" name="allergies" value="{{ allergen }}"{% if allergen in known_allergies %} checked{% endif %}><span>{{ t('allergen.' ~ allergen) }}</span></label>
+    {% endfor %}
+  </fieldset>
+  <label class="field"><span>{{ t('profile.other_allergies') }}</span><input name="other_allergies" value="{{ other_allergies }}" maxlength="300" autocomplete="off"></label>
+  <p class="hint">{{ t('profile.allergy_note') }}</p>
+  <label class="field"><span>{{ t('profile.dislikes') }}</span><input name="dislikes" value="{{ user.dislikes }}" maxlength="200" autocomplete="off"></label>
+  <fieldset class="choices">
+    <legend>{{ t('profile.cuisines') }}</legend>
+    {% for cuisine in cuisines %}
+    <label><input type="checkbox" name="cuisines" value="{{ cuisine }}"{% if cuisine in user.cuisines %} checked{% endif %}><span>{{ t('cuisine.' ~ cuisine) }}</span></label>
+    {% endfor %}
+  </fieldset>
+  <fieldset class="choices">
+    <legend>{{ t('profile.skill') }}</legend>
+    {% for skill in skills %}
+    <label><input type="radio" name="skill" value="{{ skill }}"{% if user.skill == skill %} checked{% endif %}><span>{{ t('skill.' ~ skill) }}</span></label>
+    {% endfor %}
+  </fieldset>
+  <button class="btn btn-primary">{{ t('profile.save') }}</button>
+</form>
+
+<section class="section">
+  <h2 class="section-head">{{ t('profile.password_title') }}</h2>
+  <form class="stack" method="post" action="/profile/password">
+    <label class="field"><span>{{ t('profile.current_password') }}</span><input type="password" name="current" autocomplete="current-password" required></label>
+    <label class="field"><span>{{ t('profile.new_password', n=min_password) }}</span><input type="password" name="new" autocomplete="new-password" minlength="{{ min_password }}" required></label>
+    <button class="btn btn-outline">{{ t('profile.change_password') }}</button>
+  </form>
+</section>
+
+<form class="stack section" method="post" action="/logout">
+  <button class="btn btn-danger">{{ t('profile.sign_out') }}</button>
+</form>
+{% endblock %}

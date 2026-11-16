@@ -1,0 +1,11 @@
+.env
+.git
+.gitignore
+.venv
+data
+__pycache__
+*.pyc
+.pytest_cache
+.claude
+.impeccable
+*.md

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% from "_ui.html" import icon with context %}
+{% block title %}{{ t('notfound.title') }}{% endblock %}
+{% block content %}
+<section class="leaf leaf-blank">
+  <header class="leaf-head">
+    <h1>{{ t('notfound.title') }}</h1>
+    <p class="leaf-date">404</p>
+  </header>
+  <p class="leaf-lead">{{ t('notfound.body') }}</p>
+</section>
+<a class="back" href="/">{{ icon('back') }}{{ t('action.back_kitchen') }}</a>
+{% endblock %}

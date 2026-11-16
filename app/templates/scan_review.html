@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% from "_ui.html" import icon with context %}
+{% block title %}{{ t('scan.review_title') }}{% endblock %}
+{% block content %}
+<h1>{{ t('scan.review_title') }}</h1>
+<p class="lead">{{ t('scan.review_lead', n=rows | length) }}</p>
+<div class="photos">
+  {% for photo in photos %}<img src="{{ photo }}" alt="{{ t('scan.photo_alt', n=loop.index) }}">{% endfor %}
+</div>
+<p class="hint">{{ t('scan.boxes_hint') }}</p>
+<form class="review-form" method="post" action="/scan/save">
+  <input type="hidden" name="count" value="{{ rows | length + blank_rows }}">
+  <div class="leaf leaf-review">
+    <ul class="review">
+      {% for row in rows %}
+      <li>
+        <input class="check" type="checkbox" name="keep_{{ loop.index0 }}" value="1" aria-label="{{ t('scan.keep', name=row.name) }}"{% if row.confidence != 'low' %} checked{% endif %}>
+        <span class="review-num">{{ row.number }}</span>
+        <input class="review-name" name="name_{{ loop.index0 }}" value="{{ row.name }}" maxlength="60" aria-label="{{ t('field.ingredient') }}" autocomplete="off">
+        <input name="qty_{{ loop.index0 }}" value="{{ row.quantity }}" maxlength="40" aria-label="{{ t('field.quantity') }}" autocomplete="off">
+        <input type="hidden" name="cat_{{ loop.index0 }}" value="{{ row.category }}">
+        {% if row.confidence == 'low' %}<span class="review-flag">{{ t('scan.unsure') }}{% if row.evidence %}<span class="review-why">{{ row.evidence }}</span>{% endif %}</span>{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  <h2 class="section-head">{{ t('scan.add_missed') }}</h2>
+  <ul class="review review-blank">
+    {% for n in range(blank_rows) %}
+    {% set i = rows | length + n %}
+    <li>
+      <input class="check" type="checkbox" name="keep_{{ i }}" value="1" aria-label="{{ t('scan.keep_new', n=n + 1) }}" checked>
+      <span class="review-num"></span>
+      <input class="review-name" name="name_{{ i }}" maxlength="60" aria-label="{{ t('field.ingredient') }}" placeholder="{{ t('field.ingredient') }}" autocomplete="off">
+      <input name="qty_{{ i }}" maxlength="40" aria-label="{{ t('field.quantity') }}" placeholder="{{ t('field.amount') }}" autocomplete="off">
+      <input type="hidden" name="cat_{{ i }}" value="other">
+    </li>
+    {% endfor %}
+  </ul>
+  <div class="actions">
+    <button class="btn btn-primary btn-wide" name="action" value="save">{{ t('scan.save') }}</button>
+    <button class="btn btn-secondary btn-wide" name="action" value="cook">{{ t('scan.cook_now') }}</button>
+  </div>
+</form>
+<a class="back" href="/scan">{{ icon('back') }}{{ t('scan.rescan') }}</a>
+{% endblock %}

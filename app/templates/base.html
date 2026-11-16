@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="{{ 'zh-Hans' if lang == 'zh' else 'en' }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#161616">
+<title>{% block title %}{% endblock %} · {{ app_name }}</title>
+<link rel="icon" href="/static/icon.svg" type="image/svg+xml">
+<link rel="preload" href="/static/fonts/barlow-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/static/fonts/barlow-condensed-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/static/app.css?v={{ asset_version }}">
+<script src="/static/app.js?v={{ asset_version }}" defer></script>
+</head>
+<body{% if user %} class="has-tabs"{% endif %}>
+<a class="skip" href="#main">{{ t('nav.skip') }}</a>
+<header class="masthead">
+  <div class="masthead-row">
+    <a class="brand" href="/">{{ app_name }}</a>
+    <div class="masthead-tools">
+      <form method="post" action="/lang">
+        <input type="hidden" name="back" value="{{ request.url.path }}">
+        <button class="lang" name="lang" value="{{ 'en' if lang == 'zh' else 'zh' }}" lang="{{ 'en' if lang == 'zh' else 'zh-Hans' }}" aria-label="{{ t('lang.switch') }}">{{ 'EN' if lang == 'zh' else '中文' }}</button>
+      </form>
+      {% if user %}<a class="account" href="/profile" aria-label="{{ t('nav.profile') }}"{% if active == 'profile' %} aria-current="page"{% endif %}>{{ user.username }}</a>{% endif %}
+    </div>
+  </div>
+  {% if user %}
+  <nav class="tabs" aria-label="{{ t('nav.label') }}">
+    {% for key, href in [('kitchen', '/'), ('scan', '/scan'), ('cook', '/cook'), ('saved', '/recipes')] %}
+    <a class="tab" href="{{ href }}"{% if active == key %} aria-current="page"{% endif %}>{{ t('nav.' ~ key) }}</a>
+    {% endfor %}
+  </nav>
+  {% endif %}
+</header>
+<main id="main">
+{% if demo_mode %}<p class="demo"><span class="demo-tag">{{ t('demo.tag') }}</span>{{ t('demo.banner') }}</p>{% endif %}
+{% for level, message in flashes %}
+<p class="notice notice-{{ level }}" role="status">{{ message }}</p>
+{% endfor %}
+{% block content %}{% endblock %}
+</main>
+</body>
+</html>

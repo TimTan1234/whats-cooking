@@ -1,0 +1,51 @@
+{# Shared pieces. Use: {% from "_ui.html" import icon, numeral, idea_rows, warning with context %} #}
+
+{# Icons are drawn on a 24px grid with one 2px stroke. #}
+{% macro icon(name) -%}
+<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+{%- if name == 'scan' -%}<path d="M3 8h18v12H3z"/><path d="M8 8l2-4h4l2 4"/><circle cx="12" cy="14" r="3.5"/>
+{%- elif name == 'back' -%}<path d="M20 12H4M10 6l-6 6 6 6"/>
+{%- elif name == 'plus' -%}<path d="M12 4v16M4 12h16"/>
+{%- elif name == 'alert' -%}<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.5"/>
+{%- elif name == 'next' -%}<path d="M9 5l7 7-7 7"/>
+{%- endif -%}
+</svg>
+{%- endmacro %}
+
+{# The leaf numeral: how many of the dish's ingredients are already in the kitchen. #}
+{% macro numeral(have, total, size='') -%}
+<p class="numeral{% if size %} numeral-{{ size }}{% endif %}">
+  <span class="visually-hidden">{{ t('leaf.in_hand', have=have, total=total) }}</span>
+  <span class="numeral-have" aria-hidden="true">{{ have }}</span>
+  <span class="numeral-of" aria-hidden="true">{{ t('leaf.of', total=total) }}</span>
+  <span class="numeral-label" aria-hidden="true">{{ t('leaf.in_hand_label') }}</span>
+</p>
+{%- endmacro %}
+
+{# Ingredient lines on a leaf: plain means in hand, red means to buy. #}
+{% macro idea_rows(idea) -%}
+<ul class="lines">
+  {%- for name in idea.uses %}
+  <li>{{ name }}<span class="visually-hidden"> ({{ t('ideas.have') }})</span></li>
+  {%- endfor %}
+  {%- for name in idea.missing %}
+  <li class="is-missing">{{ name }} <span class="line-note">{{ t('recipe.need') }}</span></li>
+  {%- endfor %}
+</ul>
+{%- endmacro %}
+
+{% macro idea_foot(idea) -%}
+<p class="leaf-foot">{{ t('cook.minutes', n=idea.minutes) }} · {{ t('difficulty.' ~ idea.difficulty) }}{% if idea.cuisine %} · {{ idea.cuisine }}{% endif %}</p>
+{%- endmacro %}
+
+{% macro warning(conflicts) -%}
+<div class="notice notice-warn" role="alert">
+  <p class="notice-title">{{ icon('alert') }}{{ t('warn.title') }}</p>
+  <ul>
+    {%- for c in conflicts %}
+    <li>{{ t('warn.line', ingredient=c.ingredient, rule=rule_label(c.rule, c.custom)) }}</li>
+    {%- endfor %}
+  </ul>
+  <p>{{ t('warn.footer') }}</p>
+</div>
+{%- endmacro %}

@@ -1,0 +1,478 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-16T12:35:58+00:00",
+  "title": "Design System: What's Cooking",
+  "extensions": {
+    "colorMeta": {
+      "almanac-red": {
+        "role": "primary",
+        "displayName": "Almanac Red",
+        "canonical": "#c81e28",
+        "cssVar": "--red",
+        "tonalRamp": [
+          "#200000",
+          "#540000",
+          "#880000",
+          "#b8021b",
+          "#e13f3f",
+          "#ff716a",
+          "#ffa69d",
+          "#ffded8"
+        ]
+      },
+      "almanac-red-deep": {
+        "role": "primary",
+        "displayName": "Almanac Red Deep",
+        "canonical": "#9e161e",
+        "cssVar": "--red-deep",
+        "tonalRamp": [
+          "#1d0102",
+          "#4e0004",
+          "#7f0713",
+          "#ac2a2b",
+          "#d4504c",
+          "#f47c74",
+          "#ffada4",
+          "#ffe1dc"
+        ]
+      },
+      "red-wash": {
+        "role": "primary",
+        "displayName": "Red Wash",
+        "canonical": "#fbe9e9",
+        "cssVar": "--red-wash",
+        "tonalRamp": [
+          "#0e0a0a",
+          "#2b2323",
+          "#4b3e3f",
+          "#6c5d5d",
+          "#8e7e7e",
+          "#b0a1a1",
+          "#d1c6c6",
+          "#f3eded"
+        ]
+      },
+      "almanac-green": {
+        "role": "secondary",
+        "displayName": "Almanac Green",
+        "canonical": "#1d6b3a",
+        "cssVar": "--green",
+        "tonalRamp": [
+          "#010f04",
+          "#002e12",
+          "#095027",
+          "#277241",
+          "#4c9461",
+          "#77b687",
+          "#a7d7b2",
+          "#def6e3"
+        ]
+      },
+      "green-wash": {
+        "role": "secondary",
+        "displayName": "Green Wash",
+        "canonical": "#e3efe6",
+        "cssVar": "--green-wash",
+        "tonalRamp": [
+          "#090c0a",
+          "#212722",
+          "#3c443e",
+          "#5a645d",
+          "#7b867e",
+          "#9ea8a1",
+          "#c4cbc6",
+          "#ecf0ed"
+        ]
+      },
+      "almanac-black": {
+        "role": "neutral",
+        "displayName": "Almanac Black",
+        "canonical": "#161616",
+        "cssVar": "--ink",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Ink Soft",
+        "canonical": "#3a3a36",
+        "cssVar": "--ink-soft",
+        "tonalRamp": [
+          "#0b0b08",
+          "#252522",
+          "#42423e",
+          "#61615d",
+          "#83837e",
+          "#a5a5a1",
+          "#c9c9c4",
+          "#efefea"
+        ]
+      },
+      "mute": {
+        "role": "neutral",
+        "displayName": "Mute",
+        "canonical": "#55554f",
+        "cssVar": "--mute",
+        "tonalRamp": [
+          "#0c0b07",
+          "#252520",
+          "#42423d",
+          "#62625b",
+          "#83837c",
+          "#a5a59f",
+          "#cacac3",
+          "#efefe8"
+        ]
+      },
+      "rule-grey": {
+        "role": "neutral",
+        "displayName": "Rule Grey",
+        "canonical": "#cdcdc5",
+        "cssVar": "--rule",
+        "tonalRamp": [
+          "#0b0b0a",
+          "#252521",
+          "#42423d",
+          "#62625b",
+          "#83837c",
+          "#a5a59f",
+          "#c9c9c4",
+          "#efefec"
+        ]
+      },
+      "wall-grey": {
+        "role": "neutral",
+        "displayName": "Wall Grey",
+        "canonical": "#e6e6e0",
+        "cssVar": "--wall",
+        "tonalRamp": [
+          "#0b0b08",
+          "#252521",
+          "#42423d",
+          "#62625c",
+          "#83837d",
+          "#a5a5a0",
+          "#c9c9c4",
+          "#efefe9"
+        ]
+      },
+      "newsprint-leaf": {
+        "role": "neutral",
+        "displayName": "Newsprint Leaf",
+        "canonical": "#fbfbf8",
+        "cssVar": "--leaf",
+        "tonalRamp": [
+          "#0b0b09",
+          "#252523",
+          "#424240",
+          "#61615f",
+          "#828280",
+          "#a5a5a2",
+          "#c9c9c6",
+          "#efefec"
+        ]
+      },
+      "on-ink": {
+        "role": "neutral",
+        "displayName": "On Ink",
+        "canonical": "#ffffff",
+        "cssVar": "--on-ink",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "on-ink-mute": {
+        "role": "neutral",
+        "displayName": "On Ink Mute",
+        "canonical": "#b8b8b0",
+        "cssVar": "--on-ink-mute",
+        "tonalRamp": [
+          "#0b0b0a",
+          "#252521",
+          "#42423d",
+          "#62625b",
+          "#83837b",
+          "#a5a59f",
+          "#c9c9c4",
+          "#efefec"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "numeral-display": {
+        "displayName": "Numeral Display",
+        "purpose": "Tonight's leaf numeral: the count of ingredients in hand."
+      },
+      "numeral": {
+        "displayName": "Numeral",
+        "purpose": "The in-hand count on idea and recipe leaves."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Page titles outside a leaf."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Dish titles under the leaf's black rule on idea leaves; tonight's and recipe leaves use 1.75rem."
+      },
+      "leaf-head": {
+        "displayName": "Leaf Head",
+        "purpose": "The leaf's own heading and the masthead brand, condensed caps."
+      },
+      "section-head": {
+        "displayName": "Section Head",
+        "purpose": "Section titles over a 1.5px black rule, condensed caps."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Reading text; line height 1.65 in Simplified Chinese."
+      },
+      "body-small": {
+        "displayName": "Body Small",
+        "purpose": "Hints, notices, row meta."
+      },
+      "button": {
+        "displayName": "Button",
+        "purpose": "Button labels in sentence case."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Field labels, leaf date and rank, foot meta line, back links, tabs; tracking 0.02em in Chinese."
+      },
+      "tag": {
+        "displayName": "Tag",
+        "purpose": "Inked tags, the 'need' note on to-buy lines, review flags."
+      }
+    },
+    "shadows": [
+      {
+        "name": "tab-active-bar",
+        "value": "inset 0 4px 0 #c81e28",
+        "purpose": "The active tab's red bar on the phone tab bar (inset 0 -4px 0 as an underline at 760px and wider). A drawn rule, not elevation."
+      },
+      {
+        "name": "rule-ring",
+        "value": "inset 0 0 0 1.5px #161616",
+        "purpose": "Doubles the 1.5px border of secondary and outline buttons on hover and press."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "The system ease for every transition and the tear."
+      },
+      {
+        "name": "button-fill",
+        "value": "background-color 120ms",
+        "purpose": "Button background change on hover and press."
+      },
+      {
+        "name": "tear",
+        "value": "900ms",
+        "purpose": "Logging a dish as cooked: a copy of the leaf rotates to -11deg, drops 55%, clips and fades. The one authored motion."
+      },
+      {
+        "name": "mark",
+        "value": "360ms, 520ms delay",
+        "purpose": "The cooked stamp scales in from 1.15 as the leaf tears."
+      },
+      {
+        "name": "busy",
+        "value": "1.4s linear infinite",
+        "purpose": "A black segment sweeping a 3px grey line while the AI works."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "1ms",
+        "purpose": "Under prefers-reduced-motion all animation and transition is cut to 1ms and the tear copy is removed."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide",
+        "value": "760px",
+        "purpose": "Tabs move into the masthead, ingredient lines go to three columns, actions collapse into one row."
+      }
+    ],
+    "focus": {
+      "value": "3px solid #161616, offset 3px",
+      "purpose": "All focus rings; white inside the masthead, flush (offset 0) on fields."
+    },
+    "rules": {
+      "structure": "1.5px #161616",
+      "separator": "1px #cdcdc5",
+      "leafHead": "6px #c81e28",
+      "warningTop": "4px"
+    },
+    "fonts": {
+      "selfHosted": [
+        "Barlow 400",
+        "Barlow 600",
+        "Barlow 700",
+        "Barlow Condensed 600",
+        "Barlow Condensed 800"
+      ],
+      "subset": "Latin",
+      "cjk": "platform fallback: PingFang SC, Hiragino Sans GB, Noto Sans SC, Noto Sans CJK SC, Microsoft YaHei"
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one main action per screen: black slab, white label, 56px tall.",
+      "html": "<button class=\"ds-btn ds-btn-primary\">Cook this</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:var(--tap,3.5rem);padding:8px 16px;border:1.5px solid var(--ink,#161616);border-radius:0;background:transparent;color:var(--ink,#161616);font:600 1.125rem/1.15 var(--sans,Barlow,system-ui,sans-serif);cursor:pointer;transition:background-color 120ms cubic-bezier(0.16,1,0.3,1)} .ds-btn-primary{background:var(--ink,#161616);color:var(--on-ink,#fff)} .ds-btn-primary:hover,.ds-btn-primary:active{background:var(--ink-soft,#3a3a36)} .ds-btn:focus-visible{outline:3px solid var(--ink,#161616);outline-offset:3px}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "The paired alternative: leaf-white slab with a black rule.",
+      "html": "<button class=\"ds-btn2\">Other dishes</button>",
+      "css": ".ds-btn2{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:3.5rem;padding:8px 16px;border:1.5px solid var(--ink,#161616);border-radius:0;background:var(--leaf,#fbfbf8);color:var(--ink,#161616);font:600 1.125rem/1.15 var(--sans,Barlow,system-ui,sans-serif);cursor:pointer;transition:background-color 120ms cubic-bezier(0.16,1,0.3,1)} .ds-btn2:hover{box-shadow:inset 0 0 0 1.5px var(--ink,#161616)} .ds-btn2:active{background:var(--wall,#e6e6e0);box-shadow:inset 0 0 0 1.5px var(--ink,#161616)} .ds-btn2:focus-visible{outline:3px solid var(--ink,#161616);outline-offset:3px}"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Routes such as Scan ingredients: transparent on the wall, stroked icon.",
+      "html": "<button class=\"ds-btn-outline\"><svg viewBox=\"0 0 24 24\" width=\"22\" height=\"22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M3 8h18v12H3z\"/><path d=\"M8 8l2-4h4l2 4\"/><circle cx=\"12\" cy=\"14\" r=\"3.5\"/></svg>Scan ingredients</button>",
+      "css": ".ds-btn-outline{display:inline-flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:3.5rem;padding:8px 16px;border:1.5px solid var(--ink,#161616);border-radius:0;background:transparent;color:var(--ink,#161616);font:600 1.125rem/1.15 var(--sans,Barlow,system-ui,sans-serif);cursor:pointer;transition:background-color 120ms cubic-bezier(0.16,1,0.3,1)} .ds-btn-outline:hover{background:var(--leaf,#fbfbf8);box-shadow:inset 0 0 0 1.5px var(--ink,#161616)} .ds-btn-outline:active{background:var(--wall,#e6e6e0);box-shadow:inset 0 0 0 1.5px var(--ink,#161616)} .ds-btn-outline:focus-visible{outline:3px solid var(--ink,#161616);outline-offset:3px}"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Destructive actions: red rule, deep red label, red wash on hover.",
+      "html": "<button class=\"ds-btn-danger\">Delete recipe</button>",
+      "css": ".ds-btn-danger{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:3.5rem;padding:8px 16px;border:1.5px solid var(--red,#c81e28);border-radius:0;background:transparent;color:var(--red-deep,#9e161e);font:600 1.125rem/1.15 var(--sans,Barlow,system-ui,sans-serif);cursor:pointer;transition:background-color 120ms cubic-bezier(0.16,1,0.3,1)} .ds-btn-danger:hover,.ds-btn-danger:active{background:var(--red-wash,#fbe9e9)} .ds-btn-danger:focus-visible{outline:3px solid var(--ink,#161616);outline-offset:3px}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "52px leaf-white field with a black rule and a condensed caps label above.",
+      "html": "<label class=\"ds-field\"><span>Ingredient</span><input placeholder=\"Eggs\"></label>",
+      "css": ".ds-field{display:grid;gap:6px} .ds-field span{font:600 0.9375rem/1.25 var(--cond,'Barlow Condensed',system-ui,sans-serif);letter-spacing:0.08em;text-transform:uppercase;color:var(--ink,#161616)} .ds-field input{width:100%;min-height:52px;padding:0 12px;border:1.5px solid var(--ink,#161616);border-radius:0;background:var(--leaf,#fbfbf8);color:var(--ink,#161616);font:400 1.0625rem/1.45 var(--sans,Barlow,system-ui,sans-serif);caret-color:var(--red,#c81e28);appearance:none} .ds-field input::placeholder{color:var(--mute,#55554f);opacity:1} .ds-field input:focus-visible{outline:3px solid var(--ink,#161616);outline-offset:0}"
+    },
+    {
+      "name": "Choice Chips",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Square segments; the chosen one is inked in.",
+      "html": "<div class=\"ds-chips\"><label><input type=\"radio\" name=\"t\" checked><span>20 min</span></label><label><input type=\"radio\" name=\"t\"><span>40 min</span></label><label><input type=\"radio\" name=\"t\"><span>Any time</span></label></div>",
+      "css": ".ds-chips{display:flex;flex-wrap:wrap;gap:8px} .ds-chips label{position:relative;display:inline-flex} .ds-chips input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer} .ds-chips span{display:inline-flex;align-items:center;min-height:48px;padding:6px 16px;border:1.5px solid var(--ink,#161616);background:var(--leaf,#fbfbf8);color:var(--ink,#161616);font:600 1.0625rem/1.2 var(--sans,Barlow,system-ui,sans-serif)} .ds-chips input:checked+span{background:var(--ink,#161616);color:var(--on-ink,#fff)} .ds-chips label:hover span{box-shadow:inset 0 0 0 1.5px var(--ink,#161616)} .ds-chips input:focus-visible+span{outline:3px solid var(--ink,#161616);outline-offset:3px}"
+    },
+    {
+      "name": "Tab Bar",
+      "kind": "nav",
+      "refersTo": "tab",
+      "description": "Four text tabs at the thumb; the active one red, 800 weight, with a 4px red bar on top.",
+      "html": "<nav class=\"ds-tabs\"><a href=\"#\" aria-current=\"page\">Kitchen</a><a href=\"#\">Scan</a><a href=\"#\">Cook</a><a href=\"#\">Saved</a></nav>",
+      "css": ".ds-tabs{display:grid;grid-template-columns:repeat(4,1fr);height:4rem;background:var(--leaf,#fbfbf8);border-top:1.5px solid var(--ink,#161616)} .ds-tabs a{display:grid;place-items:center;color:var(--mute,#55554f);font:600 1.0625rem/1 var(--cond,'Barlow Condensed',system-ui,sans-serif);letter-spacing:0.08em;text-transform:uppercase;text-decoration:none} .ds-tabs a[aria-current=page]{color:var(--red,#c81e28);font-weight:800;box-shadow:inset 0 4px 0 var(--red,#c81e28)} .ds-tabs a:hover{color:var(--ink,#161616)} .ds-tabs a:active{background:var(--wall,#e6e6e0)} .ds-tabs a:focus-visible{outline:3px solid var(--ink,#161616);outline-offset:-4px}"
+    },
+    {
+      "name": "Leaf",
+      "kind": "card",
+      "refersTo": "leaf",
+      "description": "The almanac leaf: red head rule, perforation, the in-hand numeral, dish title, small-print lines with the one to buy in red, muted foot line.",
+      "html": "<article class=\"ds-leaf\"><header class=\"ds-leaf-head\"><h1>Tonight</h1><p>Mon 16 Nov</p></header><p class=\"ds-num\"><span class=\"ds-num-have\">5</span><span class=\"ds-num-of\">/ 6</span><span class=\"ds-num-label\">in hand</span></p><h2 class=\"ds-leaf-title\">Sambal fried rice</h2><ul class=\"ds-lines\"><li>Rice</li><li>Eggs</li><li>Shallots</li><li>Garlic</li><li>Sambal</li><li class=\"ds-miss\">Prawns <span>need</span></li></ul><p class=\"ds-foot\">20 min · Easy · Malaysian</p></article>",
+      "css": ".ds-leaf{position:relative;padding:18px 16px 16px;background-color:var(--leaf,#fbfbf8);background-image:radial-gradient(circle at 50% 50%,var(--wall,#e6e6e0) 1.5px,transparent 2px);background-size:9px 6px;background-repeat:repeat-x;background-position:3px 4px;border-top:6px solid var(--red,#c81e28);color:var(--ink,#161616);font:400 1.0625rem/1.45 var(--sans,Barlow,system-ui,sans-serif);font-variant-numeric:tabular-nums} .ds-leaf-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px} .ds-leaf-head h1{margin:0;font:800 1.375rem/1 var(--cond,'Barlow Condensed',system-ui,sans-serif);letter-spacing:0.08em;text-transform:uppercase} .ds-leaf-head p,.ds-foot{margin:0;color:var(--mute,#55554f);font:600 0.9375rem/1.2 var(--cond,'Barlow Condensed',system-ui,sans-serif);letter-spacing:0.08em;text-transform:uppercase} .ds-num{display:flex;align-items:flex-end;gap:8px;margin:10px 0 0;font-family:var(--cond,'Barlow Condensed',system-ui,sans-serif);font-variant-numeric:tabular-nums lining-nums} .ds-num-have{color:var(--red,#c81e28);font-weight:800;font-size:clamp(6rem,32vw,8rem);line-height:0.8;letter-spacing:-0.02em} .ds-num-of{padding-bottom:2px;font-weight:800;font-size:2rem;line-height:1} .ds-num-label{max-width:3.5em;padding-bottom:4px;color:var(--mute,#55554f);font-weight:600;font-size:0.9375rem;line-height:1.05;letter-spacing:0.08em;text-transform:uppercase} .ds-leaf-title{margin:14px 0 10px;padding-top:10px;border-top:1.5px solid var(--ink,#161616);font:700 1.75rem/1.12 var(--sans,Barlow,system-ui,sans-serif)} .ds-lines{columns:2;column-gap:18px;margin:0;padding:0;list-style:none} .ds-lines li{padding:6px 0;border-bottom:1px solid var(--rule,#cdcdc5);break-inside:avoid} .ds-miss{color:var(--red,#c81e28);font-weight:600} .ds-miss span{font:600 0.8125rem/1 var(--cond,'Barlow Condensed',system-ui,sans-serif);letter-spacing:0.08em;text-transform:uppercase} .ds-foot{margin-top:12px}"
+    },
+    {
+      "name": "Allergy Warning",
+      "kind": "custom",
+      "refersTo": "notice-error",
+      "description": "Deep red on red wash with a 4px top rule and a condensed caps title.",
+      "html": "<div class=\"ds-warn\" role=\"alert\"><p class=\"ds-warn-title\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"square\" stroke-linejoin=\"miter\" aria-hidden=\"true\"><path d=\"M12 3l10 18H2z\"/><path d=\"M12 10v5M12 18v.5\"/></svg>Check before cooking</p><ul><li>Prawns: shellfish allergy</li></ul></div>",
+      "css": ".ds-warn{padding:12px 14px;border:1.5px solid currentColor;border-top-width:4px;background:var(--red-wash,#fbe9e9);color:var(--red-deep,#9e161e);font:400 0.9375rem/1.45 var(--sans,Barlow,system-ui,sans-serif)} .ds-warn-title{display:flex;align-items:center;gap:8px;margin:0;font:800 1rem/1.2 var(--cond,'Barlow Condensed',system-ui,sans-serif);letter-spacing:0.08em;text-transform:uppercase} .ds-warn ul{margin:6px 0 0;padding:0;list-style:none} .ds-warn li{font-weight:600}"
+    },
+    {
+      "name": "Confirmation Notice",
+      "kind": "custom",
+      "refersTo": "notice-ok",
+      "description": "The only green in the system: a flash notice of level ok.",
+      "html": "<p class=\"ds-ok\" role=\"status\">Saved to your kitchen.</p>",
+      "css": ".ds-ok{margin:0;padding:12px 14px;border:1.5px solid currentColor;background:var(--green-wash,#e3efe6);color:var(--green,#1d6b3a);font:400 0.9375rem/1.45 var(--sans,Barlow,system-ui,sans-serif)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Tear-off Almanac",
+    "overview": "**Creative North Star: \"The Tear-off Almanac\"**\n\nEvery dish is a leaf torn from the day-by-day almanac that hangs on a kitchen wall. Newsprint-white leaves sit on a flat grey wall; almanac black carries the text, the rules and the primary button; almanac red is rationed to the date-sized numeral, the leaf's head rule, the active tab and state that demands action. The numeral is not a date: it is how many of the dish's ingredients are already in the house, set huge in red condensed figures with \"/ 6 in hand\" beside it.\n\nThe system is printed matter, not app chrome. Corners are square, structure is drawn with 1.5px black rules rather than boxes and shadows, ingredient lists are small print in newspaper columns, and every heading that is not a dish name is condensed caps. It is built for a phone held at arm's length in a kitchen: body text starts at 17px, touch targets at 56px, the tab bar sits at the thumb, and contrast stays high on both the wall and the leaf. English and Simplified Chinese share the same leaves; CJK falls back to the platform's own sans faces with looser tracking and line height.\n\nIt refuses the photo-card recipe feed and the cute cooking app. There is no food photography on leaves, no illustration, no rounded softness and no decorative motion; the one authored movement is the leaf tearing off when a dish is logged as cooked.",
+    "keyCharacteristics": [
+      "Newsprint leaves on a grey wall, square everywhere.",
+      "A 6px red head rule and a perforation row crown every leaf.",
+      "The leaf numeral: red Barlow Condensed 800 figures counting what is in hand.",
+      "Black 1.5px rules for structure, 1px grey rules between list lines.",
+      "Condensed uppercase for heads, meta lines, tabs and labels; Barlow sentence case for dish titles and reading text.",
+      "Red means act on this; green means it is done."
+    ],
+    "rules": [
+      {
+        "name": "The Rationed Red Rule",
+        "body": "Red appears only where the almanac would print it: the numeral, the head rule, the active tab, and state the cook must act on (to buy, allergy warning, error, cooked, unsure). Never as decoration, never as a large fill.",
+        "section": "colors"
+      },
+      {
+        "name": "The Green Means Done Rule",
+        "body": "Green is reserved for confirmations (flash notices of level \"ok\"). Meta lines, times and difficulty stay muted grey, including the leaf foot line.",
+        "section": "colors"
+      },
+      {
+        "name": "The Condensed Caps Rule",
+        "body": "Everything that labels, dates or counts is Barlow Condensed in caps tracked 0.08em; everything that names a dish or is read through is Barlow in sentence case. In Simplified Chinese, tracking drops to 0.02em and body line height rises to 1.65.",
+        "section": "typography"
+      },
+      {
+        "name": "The Thumb Reach Rule",
+        "body": "Every control is at least 44px tall and every primary control 56px (the `tap` step); fields are 52px; chips and toggles 48px.",
+        "section": "layout"
+      },
+      {
+        "name": "The Flat Leaf Rule",
+        "body": "Leaves are paper on a wall, not cards on a table. Separate surfaces with the wall colour and with rules, never with a drop shadow or a blur.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Square Corner Rule",
+        "body": "Radius is zero. A rounded corner anywhere breaks the paper.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "**Do** put every dish on a leaf with the red head rule, the perforation and the numeral of ingredients in hand.",
+      "**Do** keep red to the numeral, the head rule, the active tab and actionable state; use deep red on red wash.",
+      "**Do** keep green for confirmations only, and set meta lines in muted grey.",
+      "**Do** draw structure with rules: 1.5px black for structure, 1px grey between lines.",
+      "**Do** set labels, dates, tabs and counts in Barlow Condensed caps at 0.08em, and dish names and reading text in Barlow sentence case.",
+      "**Do** keep primary controls at least 56px tall and body text at 1.0625rem or larger.",
+      "**Do** keep the tear as the one authored motion, and honour reduced motion."
+    ],
+    "donts": [
+      "**Don't** round a corner.",
+      "**Don't** cast drop shadows or blur; inset box-shadow is only for drawn rules (the tab bar, the button ring).",
+      "**Don't** put food photography or illustration on a leaf; the only photos are the user's own scans on the review screen.",
+      "**Don't** use red as decoration or as a large fill.",
+      "**Don't** use green for meta, tags or anything that is not a confirmation.",
+      "**Don't** add icons to tabs or decorative glyphs to headings; icons are stroked SVGs used only beside an action or a warning."
+    ]
+  }
+}

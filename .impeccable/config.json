@@ -1,0 +1,15 @@
+{
+  "buildPath": "code",
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-color",
+        "value": "rgb(0, 0, 0)",
+        "createdAt": "2026-11-16T12:37:00.715Z",
+        "reason": "Claude: templates are scanned without app.css, so text reads as default black; body text is --ink #161616, a DESIGN.md token"
+      }
+    ]
+  }
+}

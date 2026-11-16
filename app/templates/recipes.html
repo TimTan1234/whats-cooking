@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}{{ t('saved.title') }}{% endblock %}
+{% block content %}
+<h1>{{ t('saved.title') }}</h1>
+{% if saved %}
+<ul class="rows">
+  {% for recipe in saved %}
+  <li><a href="/recipes/{{ recipe.id }}"><span class="row-name">{{ recipe.title }}</span><span class="row-meta">{{ t('cook.minutes', n=recipe.minutes) }} · {{ t('difficulty.' ~ recipe.difficulty) }}</span></a></li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="lead">{{ t('saved.empty') }}</p>
+<div class="actions"><a class="btn btn-primary btn-wide" href="/cook">{{ t('action.cook') }}</a></div>
+{% endif %}
+
+<section class="section">
+  <h2 class="section-head">{{ t('saved.history') }}</h2>
+  {% if cooked %}
+  <ul class="rows">
+    {% for log, recipe in cooked %}
+    <li><a href="/recipes/{{ recipe.id }}"><span class="row-name">{{ recipe.title }}</span><span class="row-meta">{{ local_day(log.cooked_at) }}{% if log.rating %} · {{ t('saved.rated', n=log.rating) }}{% endif %}</span></a></li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="hint">{{ t('saved.history_empty') }}</p>
+  {% endif %}
+</section>
+{% endblock %}
