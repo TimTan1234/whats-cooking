@@ -1135,6 +1135,68 @@ fieldset {
   outline-offset: 3px;
 }
 
+.pickers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.picker-gallery {
+  border-top-color: var(--ink);
+}
+
+.picker:has(input:disabled) {
+  color: var(--mute);
+  cursor: not-allowed;
+}
+
+.picker input:disabled {
+  cursor: not-allowed;
+}
+
+/* Photos waiting to be scanned, each removable. */
+.shots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.shot {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  background: var(--ink);
+}
+
+.shot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.shot-remove {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: var(--ink);
+  color: var(--on-ink);
+  cursor: pointer;
+}
+
+.shot-remove .icon {
+  width: 22px;
+  height: 22px;
+}
+
 .chosen {
   min-height: 1.45em;
   font-weight: 600;

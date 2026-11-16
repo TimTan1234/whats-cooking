@@ -2,19 +2,85 @@
 (function () {
   "use strict";
 
-  // Scan: say how many photos were chosen.
-  document.querySelectorAll("input[type=file][data-count-into]").forEach(function (input) {
-    var out = document.getElementById(input.getAttribute("data-count-into"));
-    if (!out) return;
-    input.addEventListener("change", function () {
-      var n = input.files ? input.files.length : 0;
-      if (n === 0) {
-        out.textContent = "";
-      } else if (n === 1) {
-        out.textContent = out.getAttribute("data-one");
-      } else {
-        out.textContent = out.getAttribute("data-many").replace("{n}", String(n));
+  // Scan: every photo, from the camera or the gallery, becomes its own entry that can be
+  // removed, so several camera shots add up instead of replacing each other.
+  document.querySelectorAll("form[data-photos]").forEach(function (form) {
+    var max = parseInt(form.getAttribute("data-max"), 10) || 4;
+    var pickers = form.querySelectorAll(".picker input[type=file]");
+    var list = form.querySelector(".shots");
+    var template = document.getElementById("shot-template");
+    var status = form.querySelector(".chosen");
+    var canSplit = typeof DataTransfer === "function" && list && template;
+    if (canSplit) {
+      try {
+        new DataTransfer().items.add(new File([""], "probe.jpg"));
+      } catch (error) {
+        canSplit = false;
       }
+    }
+
+    function count() {
+      var n = list ? list.children.length : 0;
+      pickers.forEach(function (input) {
+        n += input.files ? input.files.length : 0;
+      });
+      return n;
+    }
+
+    function refresh() {
+      var n = count();
+      var text = "";
+      if (n === 1) {
+        text = status.getAttribute("data-one");
+      } else if (n > 1) {
+        text = status.getAttribute("data-many").replace("{n}", String(n));
+      }
+      if (n >= max) text = status.getAttribute("data-full").replace("{n}", String(n));
+      status.textContent = text;
+      if (list) {
+        list.hidden = list.children.length === 0;
+        Array.prototype.forEach.call(list.children, function (item, index) {
+          var button = item.querySelector(".shot-remove");
+          button.setAttribute("aria-label", button.getAttribute("data-label").replace("{n}", String(index + 1)));
+        });
+      }
+      if (canSplit) {
+        pickers.forEach(function (input) {
+          input.disabled = n >= max;
+        });
+      }
+    }
+
+    function addShot(file) {
+      var item = template.content.firstElementChild.cloneNode(true);
+      var holder = document.createElement("input");
+      var transfer = new DataTransfer();
+      transfer.items.add(file);
+      holder.type = "file";
+      holder.name = "photos";
+      holder.hidden = true;
+      holder.files = transfer.files;
+      var url = URL.createObjectURL(file);
+      var image = item.querySelector("img");
+      image.src = url;
+      item.appendChild(holder);
+      item.querySelector(".shot-remove").addEventListener("click", function () {
+        URL.revokeObjectURL(url);
+        item.remove();
+        refresh();
+      });
+      list.appendChild(item);
+    }
+
+    pickers.forEach(function (input) {
+      input.addEventListener("change", function () {
+        if (canSplit && input.files) {
+          var room = max - list.children.length;
+          Array.prototype.slice.call(input.files, 0, Math.max(room, 0)).forEach(addShot);
+          input.value = "";
+        }
+        refresh();
+      });
     });
   });
 

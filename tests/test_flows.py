@@ -72,6 +72,17 @@ def test_scan_cook_with_just_these_leaves_the_pantry_alone(mei):
     assert pantry_names("mei") == []
 
 
+def test_scan_offers_the_camera_and_the_gallery(mei, photo):
+    page = mei.get("/scan").text
+    assert 'capture="environment"' in page  # opens the rear camera directly
+    assert page.count('name="photos"') == 2  # camera and gallery feed the same upload
+
+    # the unused picker sends an empty part; only real photos count
+    review = mei.post("/scan", files=[("photos", ("", b"", "application/octet-stream")),
+                                      ("photos", ("camera.jpg", photo, "image/jpeg"))])
+    assert review.status_code == 200 and review.text.count("data:image/jpeg;base64,") == 1
+
+
 def test_scan_rejects_bad_uploads(mei, photo, monkeypatch):
     assert mei.post("/scan").status_code == 400
     not_a_photo = mei.post("/scan", files=[("photos", ("notes.txt", b"hello", "text/plain"))])
