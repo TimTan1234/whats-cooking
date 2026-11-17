@@ -2,7 +2,7 @@
 
 import re
 from dataclasses import dataclass
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from pydantic import BaseModel, Field, field_validator
 from sqlmodel import Session, select
@@ -10,7 +10,8 @@ from sqlmodel import Session, select
 from app.ai.base import CookContext
 from app.models import CookLog, IdeaSet, PantryItem, Recipe, User, utcnow
 from app.schemas import DishIdea, FullRecipe
-from app.services.safety import Conflict, find_conflicts
+from app.services import taste
+from app.services.safety import Conflict, dish_conflicts
 from app.services.text import clean, name_key
 
 CUISINES: tuple[str, ...] = ("malaysian", "chinese", "indian", "thai", "japanese", "korean", "western", "italian")
@@ -19,6 +20,11 @@ CUISINE_NAMES = {
     "japanese": "Japanese", "korean": "Korean", "western": "Western", "italian": "Italian",
 }
 MEALS: tuple[str, ...] = ("breakfast", "lunch", "dinner", "snack")
+DISH_TYPES: tuple[str, ...] = ("soup", "rice", "noodles", "meat", "seafood", "vegetables", "dessert")
+DISH_TYPE_NAMES = {
+    "soup": "a soup", "rice": "a rice dish", "noodles": "a noodle dish", "meat": "a meat dish such as steak, chops or a roast",
+    "seafood": "a fish or seafood dish", "vegetables": "a vegetable dish", "dessert": "a dessert or sweet",
+}
 SKILLS: tuple[str, ...] = ("beginner", "home", "confident")
 TIME_CHOICES: tuple[int, ...] = (15, 30, 45, 60, 0)
 MAX_INGREDIENTS = 80
@@ -40,6 +46,7 @@ def is_staple(name: str) -> bool:
         if key.endswith(tail):
             key = key[: -len(tail)].strip()
     return key in STAPLES
+KITCHEN_SOURCES = ("pantry", "today")  # idea sets whose "uses" come from the saved kitchen
 FRESH_HOURS = 18  # how long suggestions count as "tonight's"
 # Rice, noodles, sauces and spices usually outlast one dish, so cooking does not remove them by default.
 LONG_LASTING: frozenset[str] = frozenset({"grain", "sauce_spice"})
@@ -54,6 +61,9 @@ class CookOptions(BaseModel):
     meal: str = ""
     servings: int = 2
     extras_ok: bool = True
+    dish_type: str = ""
+    craving: str = ""
+    answers: list[str] = Field(default_factory=list)
 
     @field_validator("ingredients")
     @classmethod
@@ -76,17 +86,34 @@ class CookOptions(BaseModel):
     def _known_meal(cls, value: str) -> str:
         return value if value in MEALS else ""
 
+    @field_validator("dish_type")
+    @classmethod
+    def _known_dish_type(cls, value: str) -> str:
+        return value if value in DISH_TYPES else ""
+
+    @field_validator("craving")
+    @classmethod
+    def _tidy_craving(cls, value: str) -> str:
+        return clean(value, 300)
+
+    @field_validator("answers")
+    @classmethod
+    def _tidy_answers(cls, value: list[str]) -> list[str]:
+        return [line for line in (clean(line, 120) for line in value) if line][:3]
+
     @field_validator("servings")
     @classmethod
     def _sane_servings(cls, value: int) -> int:
         return min(max(value, 1), 12)
 
 
-def build_context(session: Session, user: User, options: CookOptions, avoid: list[str] | None = None) -> CookContext:
-    """Combine the form choices with the user's profile and cooking history.
+def build_context(session: Session, user: User, options: CookOptions, avoid: list[str] | None = None,
+                  today: bool = False) -> CookContext:
+    """Combine the form choices with the user's profile, taste and cooking history.
 
     Diet and allergies always come from the saved profile, never from the form.
-    `avoid` adds dish titles that should not be suggested again.
+    `avoid` adds dish titles that should not be suggested again. `today` asks for
+    dishes chosen from taste alone.
     """
     now = utcnow()
     recent = session.exec(
@@ -102,7 +129,14 @@ def build_context(session: Session, user: User, options: CookOptions, avoid: lis
         .where(CookLog.user_id == user.id, CookLog.rating >= 4)
         .order_by(CookLog.cooked_at.desc()).limit(6)
     ).all()
-    liked = list(dict.fromkeys([*loved, *saved]))[:8]
+    disliked = session.exec(
+        select(Recipe.title).join(CookLog, CookLog.recipe_id == Recipe.id)
+        .where(CookLog.user_id == user.id, CookLog.rating <= 2)
+        .order_by(CookLog.cooked_at.desc()).limit(6)
+    ).all()
+    disliked = list(dict.fromkeys(disliked))
+    liked = [title for title in dict.fromkeys([*loved, *saved]) if title not in disliked][:8]
+    known = taste.summary(session, user)
     return CookContext(
         ingredients=options.ingredients,
         lang=user.lang,
@@ -118,6 +152,15 @@ def build_context(session: Session, user: User, options: CookOptions, avoid: lis
         extras_ok=options.extras_ok,
         recent_titles=[title for title in dict.fromkeys([*(avoid or []), *recent]) if title not in liked],
         liked_titles=liked,
+        disliked_titles=disliked,
+        dish_type=DISH_TYPE_NAMES.get(options.dish_type, ""),
+        craving=options.craving,
+        answers=list(options.answers),
+        likes=known["likes"],
+        usual_dish_types=[DISH_TYPE_NAMES[kind] for kind in known["dish_types"] if kind in DISH_TYPE_NAMES],
+        recent_cravings=[c for c in known["cravings"] if c != options.craving],
+        recent_answers=[a for a in known["answers"] if a not in options.answers],
+        today=today,
     )
 
 
@@ -161,21 +204,27 @@ def tidy_idea(idea: DishIdea) -> DishIdea:
     )
 
 
-def rank_ideas(ideas: list[DishIdea], user: User) -> list[RankedIdea]:
-    """Order ideas: no diet or allergy conflict first, then fewest missing, then quickest."""
+def rank_ideas(ideas: list[DishIdea], user: User, by_kitchen: bool = True) -> list[RankedIdea]:
+    """Order ideas: no diet or allergy conflict first, then fewest missing, then quickest.
+
+    Without `by_kitchen` (ideas chosen from taste), the AI's order is kept after conflicts.
+    """
     ranked = []
     for idea in ideas:
         idea = tidy_idea(idea)
-        conflicts = find_conflicts([idea.title, *idea.uses, *idea.missing], list(user.allergies or []), list(user.diets or []))
+        conflicts = dish_conflicts(idea.title, [*idea.uses, *idea.missing], list(user.allergies or []), list(user.diets or []))
         ranked.append(RankedIdea(idea, conflicts))
-    ranked.sort(key=lambda r: (bool(r.conflicts), len(r.idea.missing), r.idea.minutes))
+    if by_kitchen:
+        ranked.sort(key=lambda r: (bool(r.conflicts), len(r.idea.missing), r.idea.minutes))
+    else:
+        ranked.sort(key=lambda r: bool(r.conflicts))
     return ranked
 
 
 def annotate(ideas: list[DishIdea], user: User) -> list[RankedIdea]:
     """Stored ideas in their saved order, checked against the user's current profile."""
     return [
-        RankedIdea(idea, find_conflicts([idea.title, *idea.uses, *idea.missing], list(user.allergies or []), list(user.diets or [])))
+        RankedIdea(idea, dish_conflicts(idea.title, [*idea.uses, *idea.missing], list(user.allergies or []), list(user.diets or [])))
         for idea in ideas
     ]
 
@@ -199,6 +248,7 @@ class StoredIdeas:
     options: CookOptions
     ideas: list[DishIdea]
     fresh: bool
+    made: datetime
 
 
 def recipe_count(ingredients: list[dict]) -> tuple[int, int]:
@@ -207,13 +257,41 @@ def recipe_count(ingredients: list[dict]) -> tuple[int, int]:
     return sum(1 for item in counted if item.get("have")), len(counted)
 
 
+def link_to_kitchen(ingredients: list[dict], items: list[PantryItem]) -> None:
+    """Note which kitchen items each in-hand ingredient of a new recipe was written from."""
+    for item in ingredients:
+        if item["have"] and not item["staple"]:
+            item["kitchen"] = [match.name_key for match in pantry_matches([item["name"]], items)]
+
+
+def in_hand_now(ingredients: list[dict], items: list[PantryItem]) -> list[dict]:
+    """A recipe's ingredients marked against the kitchen as it is now.
+
+    An ingredient written from kitchen items stays in hand while any of them is still
+    there; one that was to buy is in hand once the kitchen has it.
+    """
+    current = {item.name_key for item in items}
+    marked = []
+    for item in ingredients:
+        if item.get("staple", is_staple(item.get("name", ""))):
+            marked.append(item)
+            continue
+        if item.get("kitchen"):
+            have = any(key in current for key in item["kitchen"])
+        else:
+            have = bool(item.get("have")) or bool(pantry_matches([item.get("name", "")], items))
+        marked.append({**item, "have": have})
+    return marked
+
+
 def up_to_date(stored: "StoredIdeas", items: list[PantryItem]) -> list[DishIdea]:
     """Stored ideas with anything since used up moved from "uses" to "missing".
 
-    Only applies to ideas made from the kitchen: an ingredient that was in the
-    kitchen when the ideas were made, and is not there now, is now to buy.
+    Only applies to ideas marked against the kitchen ("pantry" and "today"): an
+    ingredient that was in the kitchen when the ideas were made, and is not there
+    now, is now to buy.
     """
-    if stored.source != "pantry":
+    if stored.source not in KITCHEN_SOURCES:
         return stored.ideas
     current = {item.name_key for item in items}
     had = {name_key(re.sub(r"\s*\(.*\)\s*$", "", line)) for line in stored.options.ingredients}
@@ -251,7 +329,7 @@ def load_ideas(session: Session, user: User) -> StoredIdeas | None:
     except ValueError:
         return None
     fresh = row.created_at >= utcnow() - timedelta(hours=FRESH_HOURS)
-    return StoredIdeas(row.source, options, ideas, fresh)
+    return StoredIdeas(row.source, options, ideas, fresh, row.created_at)
 
 
 def tidy_recipe(recipe: FullRecipe) -> dict:

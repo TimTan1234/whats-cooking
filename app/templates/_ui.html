@@ -1,4 +1,4 @@
-{# Shared pieces. Use: {% from "_ui.html" import icon, numeral, idea_rows, warning with context %} #}
+{# Shared pieces. Use: {% from "_ui.html" import icon, numeral, idea_rows, warning, today_button with context %} #}
 
 {# Icons are drawn on a 24px grid with one 2px stroke. #}
 {% macro icon(name) -%}
@@ -15,9 +15,12 @@
 {%- endmacro %}
 
 {# The leaf numeral: how many of the dish's ingredients are already in the kitchen. #}
-{% macro numeral(have, total, size='') -%}
-<p class="numeral{% if size %} numeral-{{ size }}{% endif %}">
+{# announce=false when the leaf states the count after its heading instead. #}
+{% macro numeral(have, total, size='', announce=true) -%}
+<p class="numeral{% if size %} numeral-{{ size }}{% endif %}"{% if not announce %} aria-hidden="true"{% endif %}>
+  {%- if announce %}
   <span class="visually-hidden">{{ t('leaf.in_hand', have=have, total=total) }}</span>
+  {%- endif %}
   <span class="numeral-have" aria-hidden="true">{{ have }}</span>
   <span class="numeral-of" aria-hidden="true">{{ t('leaf.of', total=total) }}</span>
   <span class="numeral-label" aria-hidden="true">{{ t('leaf.in_hand_label') }}</span>
@@ -36,18 +39,52 @@
 </ul>
 {%- endmacro %}
 
+{# What was asked for, in one line, with a way back to change it. #}
+{% macro order_stub(source, options, with_answers=false) -%}
+{%- set parts = [] -%}
+{%- if source == 'pantry' %}{% set _ = parts.append(t('cook.stub_kitchen', n=options.ingredients | length)) %}
+{%- elif source == 'custom' %}{% set _ = parts.append(t('cook.stub_list', n=options.ingredients | length)) %}{% endif -%}
+{%- set _ = parts.append(t('cook.minutes', n=options.minutes) if options.minutes else t('cook.any_time')) -%}
+{%- if options.cuisine %}{% set _ = parts.append(t('cuisine.' ~ options.cuisine)) %}{% endif -%}
+{%- if options.meal %}{% set _ = parts.append(t('meal.' ~ options.meal)) %}{% endif -%}
+{%- if with_answers %}{% for answer in options.answers %}{% set _ = parts.append(answer.replace(' → ', ' ')) %}{% endfor %}{% endif -%}
+<div class="order-stub">
+  <p class="order-stub-line">
+    {%- if options.dish_type %}{{ t('dish.' ~ options.dish_type) }} · {% endif -%}
+    {%- if options.craving %}<span class="order-stub-quote">“{{ options.craving | truncate(40, false, '…', 0) }}”</span> · {% endif -%}
+    {{ parts | join(' · ') }}</p>
+  <a class="order-stub-change" href="/cook?change=1">{{ t('cook.change') }}{{ icon('next') }}</a>
+</div>
+{%- endmacro %}
+
 {% macro idea_foot(idea) -%}
 <p class="leaf-foot">{{ t('cook.minutes', n=idea.minutes) }} · {{ t('difficulty.' ~ idea.difficulty) }}{% if idea.cuisine %} · {{ idea.cuisine }}{% endif %}</p>
 {%- endmacro %}
 
-{% macro warning(conflicts) -%}
-<div class="notice notice-warn" role="alert">
+{# alert=false for a warning that is one of several on the page, so they are not all announced at once. #}
+{# brief: the page already warns and carries the footer, so each leaf lists only its own lines. #}
+{% macro warning(conflicts, others=false, alert=true, brief=false) -%}
+<div class="notice notice-warn"{% if alert %} role="alert"{% endif %}>
   <p class="notice-title">{{ icon('alert') }}{{ t('warn.title') }}</p>
   <ul>
     {%- for c in conflicts %}
     <li>{{ t('warn.line', ingredient=c.ingredient, rule=rule_label(c.rule, c.custom)) }}</li>
     {%- endfor %}
   </ul>
+  {%- if not brief %}
   <p>{{ t('warn.footer') }}</p>
+  {%- endif %}
+  {%- if others %}
+  <a class="notice-link" href="/cook/ideas">{{ t('warn.others') }}</a>
+  {%- endif %}
 </div>
+{%- endmacro %}
+
+{# Dishes chosen from the user's taste rather than their kitchen. #}
+{% macro today_button(style='btn-outline') -%}
+<form class="actions-form actions-wide" method="post" action="/today" data-busy>
+  <input type="hidden" name="back" value="{{ request.url.path }}">
+  <button class="btn {{ style }} btn-wide">{{ t('today.action') }}</button>
+  <p class="busy" data-busy-panel role="status" hidden>{{ t('today.busy') }}</p>
+</form>
 {%- endmacro %}

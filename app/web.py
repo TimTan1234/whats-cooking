@@ -1,6 +1,6 @@
 """Helpers shared by the page routes: rendering, redirects, flash messages."""
 
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -39,8 +39,31 @@ def flash(request: Request, level: str, message: str) -> None:
     request.session["flash"] = queue[-5:]
 
 
+def remember_language(request: Request, session: Session, user: User | None, lang: str) -> None:
+    """Switch the screen language for this browser and, when signed in, for the person."""
+    if lang not in i18n.LANGS:
+        return
+    request.session["lang"] = lang
+    if user is not None:
+        user.lang = lang
+        session.add(user)
+        session.commit()
+
+
 def redirect(url: str) -> RedirectResponse:
     return RedirectResponse(url, status_code=303)
+
+
+def local_path(back: str, fallback: str = "/") -> str:
+    """A path on this site to send someone back to; anything else becomes the fallback."""
+    return back if back.startswith("/") and not back.startswith("//") and "\\" not in back else fallback
+
+
+def local_date(moment: datetime) -> date:
+    """The calendar date of a moment in the server's time zone."""
+    if moment.tzinfo is None:
+        moment = moment.replace(tzinfo=timezone.utc)
+    return moment.astimezone(ZoneInfo(get_settings().timezone)).date()
 
 
 def local_day(moment: datetime, lang: str) -> str:

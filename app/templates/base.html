@@ -19,10 +19,11 @@
     <a class="brand" href="/">{{ app_name }}</a>
     <div class="masthead-tools">
       <form method="post" action="/lang">
-        <input type="hidden" name="back" value="{{ request.url.path }}">
-        <button class="lang" name="lang" value="{{ 'en' if lang == 'zh' else 'zh' }}" lang="{{ 'en' if lang == 'zh' else 'zh-Hans' }}" aria-label="{{ t('lang.switch') }}">{{ 'EN' if lang == 'zh' else '中文' }}</button>
+        <input type="hidden" name="back" value="{{ request.url.path }}{% if request.url.query %}?{{ request.url.query }}{% endif %}">
+        {# A page built from a form post can send its own form instead, so switching keeps the work. #}
+        <button class="lang" name="lang" value="{{ 'en' if lang == 'zh' else 'zh' }}"{% block lang_button %}{% endblock %}><span lang="{{ 'en' if lang == 'zh' else 'zh-Hans' }}">{{ 'EN' if lang == 'zh' else '中文' }}</span><span class="visually-hidden">: {{ t('lang.switch') }}</span></button>
       </form>
-      {% if user %}<a class="account" href="/profile" aria-label="{{ t('nav.profile') }}"{% if active == 'profile' %} aria-current="page"{% endif %}>{{ user.username }}</a>{% endif %}
+      {% if user %}<a class="account" href="/profile"{% if active == 'profile' %} aria-current="page"{% endif %}>{{ user.username }}<span class="visually-hidden">: {{ t('nav.profile') }}</span></a>{% endif %}
     </div>
   </div>
   {% if user %}
@@ -35,9 +36,11 @@
 </header>
 <main id="main">
 {% if demo_mode %}<p class="demo"><span class="demo-tag">{{ t('demo.tag') }}</span>{{ t('demo.banner') }}</p>{% endif %}
+{% block flashes %}
 {% for level, message in flashes %}
 <p class="notice notice-{{ level }}" role="status">{{ message }}</p>
 {% endfor %}
+{% endblock %}
 {% block content %}{% endblock %}
 </main>
 </body>

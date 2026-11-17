@@ -1,27 +1,44 @@
 {% extends "base.html" %}
-{% from "_ui.html" import icon, numeral, idea_rows, idea_foot, warning with context %}
+{% from "_ui.html" import icon, numeral, idea_rows, idea_foot, warning, today_button with context %}
 {% block title %}{{ t('nav.kitchen') }}{% endblock %}
+{# After a pantry change, its message sits beside the pantry rather than at the top of the page. #}
+{% block flashes %}{% if not pantry_flashes %}{{ super() }}{% endif %}{% endblock %}
 {% block content %}
 {% if tonight %}
+{# The in-hand numeral only speaks for dishes picked from the kitchen, and only when something is in hand. #}
+{% set from_taste = tonight_source == 'today' %}
+{% set missing = tonight.idea.missing | length %}
 <article class="leaf leaf-tonight">
   <header class="leaf-head">
-    <h1>{{ t('kitchen.tonight') }}</h1>
+    <h1>{{ t('today.title') if from_taste else t('kitchen.tonight') }}</h1>
     <p class="leaf-date">{{ today }}</p>
   </header>
-  {{ numeral(tonight.have, tonight.total, 'large') }}
+  {% if from_taste %}<p class="leaf-source">{{ t('today.from_taste') }}</p>
+  {% elif not tonight.conflicts %}<p class="leaf-source">{{ t('kitchen.best_from') }}</p>{% endif %}
+  {# Every suggestion conflicts with the profile: the warning leads and the numeral steps down. #}
+  {% if tonight.conflicts %}{{ warning(tonight.conflicts, others=true) }}{% endif %}
+  {% if not from_taste and tonight.have %}
+  {{ numeral(tonight.have, tonight.total, '' if tonight.conflicts else 'large') }}
+  {% else %}
+  <p class="leaf-tally">{{ t('leaf.to_buy', n=missing) if missing else t('leaf.nothing_to_buy') }}</p>
+  {% endif %}
   <h2 class="leaf-title">{{ tonight.idea.title }}</h2>
   {{ idea_rows(tonight.idea) }}
-  {% if tonight.conflicts %}{{ warning(tonight.conflicts) }}{% endif %}
   {{ idea_foot(tonight.idea) }}
 </article>
-<p class="hint">{{ t('kitchen.best_from', n=items | length) }}</p>
-<div class="actions">
+{# On a phone, Get the recipe and Other dishes stay docked above the tab bar until the page reaches them. #}
+<div class="actions actions-dock">
   <form class="actions-form" method="post" action="/recipes" data-busy>
-    <input type="hidden" name="pick" value="0">
-    <button class="btn btn-primary">{{ t('action.cook_this') }}</button>
+    <input type="hidden" name="pick" value="{{ tonight_pick }}">
+    <button class="btn btn-primary">{{ t('ideas.get_recipe') }}</button>
     <p class="busy" data-busy-panel role="status" hidden>{{ t('ideas.busy') }}</p>
   </form>
   <a class="btn btn-secondary" href="/cook/ideas">{{ t('action.other_dishes') }}</a>
+</div>
+{% if not items %}
+<p class="lead kitchen-empty"><strong>{{ t('kitchen.empty_title') }}.</strong> {{ t('kitchen.empty_body') }}</p>
+{% endif %}
+<div class="actions">
   <a class="btn btn-outline btn-wide" href="/scan">{{ icon('scan') }}{{ t('action.scan') }}</a>
 </div>
 {% else %}
@@ -39,34 +56,45 @@
   {% else %}
   <a class="btn btn-primary btn-wide" href="/scan">{{ icon('scan') }}{{ t('action.scan') }}</a>
   {% endif %}
+  {{ today_button() }}
 </div>
+<p class="hint">{{ t('today.explain') }}</p>
 {% endif %}
 
 <section class="section" id="pantry">
-  <h2 class="section-head">{{ t('kitchen.title') }}{% if items %} <span class="count">{{ items | length }}</span>{% endif %}</h2>
-  {% if items %}
-  <ul class="rows">
-    {% for item in items %}
-    <li><a href="/pantry/{{ item.id }}"><span class="row-name">{{ item.name }}</span>{% if item.quantity %}<span class="row-meta">{{ item.quantity }}</span>{% endif %}</a></li>
-    {% endfor %}
-  </ul>
-  <p class="hint">{{ t('kitchen.edit_hint') }}</p>
-  {% endif %}
+  <h2 class="section-head">{% if items %}{{ t('kitchen.title') }} <span class="count">{{ items | length }}</span>{% else %}{{ t('kitchen.add_title') }}{% endif %}</h2>
+  {% if pantry_flashes %}{% for level, message in flashes %}
+  <p class="notice notice-{{ level }}" role="status">{{ message }}</p>
+  {% endfor %}{% endif %}
   <form class="add" method="post" action="/pantry">
-    <h3>{{ t('kitchen.add_title') }}</h3>
     <div class="add-row">
       <label class="field"><span>{{ t('field.ingredient') }}</span><input name="name" maxlength="60" required autocomplete="off"></label>
       <label class="field"><span>{{ t('field.quantity') }}</span><input name="quantity" maxlength="40" autocomplete="off"></label>
+      <label class="field"><span>{{ t('field.category') }}</span>
+        <select name="category">
+          {% for category in categories %}<option value="{{ category }}"{% if category == 'other' %} selected{% endif %}>{{ t('cat.' ~ category) }}</option>{% endfor %}
+        </select></label>
       <button class="btn btn-outline btn-icon" aria-label="{{ t('action.add') }}">{{ icon('plus') }}</button>
     </div>
   </form>
+  {% if items %}<p class="hint">{{ t('kitchen.edit_hint') }}</p>{% endif %}
+  {% for category, rows in groups %}
+  <h3 class="pantry-group">{{ t('cat.' ~ category) }} <span class="count">{{ rows | length }}</span></h3>
+  <ul class="rows">
+    {% for item in rows %}
+    <li><a href="/pantry/{{ item.id }}"><span class="row-name">{{ item.name }}</span>{% if item.quantity %}<span class="row-meta">{{ item.quantity }}</span>{% endif %}</a></li>
+    {% endfor %}
+  </ul>
+  {% endfor %}
 </section>
 
 {% if last %}
 {% set log, recipe = last %}
 <section class="section">
   <h2 class="section-head">{{ t('kitchen.last_cooked', day=local_day(log.cooked_at)) }}</h2>
-  <ul class="rows"><li><a href="/recipes/{{ recipe.id }}"><span class="row-name">{{ recipe.title }}</span><span class="row-meta">{{ t('cook.minutes', n=recipe.minutes) }}</span></a></li></ul>
+  <ul class="rows"><li>
+    {%- if recipe.data.removed %}<span class="row-plain"><span class="row-name">{{ recipe.title }}</span></span>
+    {%- else %}<a href="/recipes/{{ recipe.id }}"><span class="row-name">{{ recipe.title }}</span><span class="row-meta">{{ t('cook.minutes', n=recipe.minutes) }}</span></a>{% endif %}</li></ul>
 </section>
 {% endif %}
 {% endblock %}

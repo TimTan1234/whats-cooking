@@ -48,3 +48,12 @@ def test_cooking_cannot_remove_someone_elses_ingredients(mei, ali):
     path = ali.post("/recipes", data={"pick": "0"}).url.path
     ali.post(f"{path}/cooked", data={"used": str(mei_item)})
     assert pantry_names("mei") == ["Eggs"]
+
+
+def test_questions_and_taste_are_private(mei, ali):
+    mei.post("/pantry", data={"name": "Eggs"})
+    mei.post("/cook/questions", data={"source": "pantry", "dish_type": "soup", "craving": "Secret bubur"})
+    assert ali.post("/cook/answers", data={"q0": "Clear broth"}).url.path == "/cook"
+    mei.post("/cook/answers", data={"q0": "Clear broth"})
+    assert "Secret bubur" in mei.get("/profile").text
+    assert "Secret bubur" not in ali.get("/profile").text

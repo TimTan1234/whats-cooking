@@ -10,7 +10,7 @@ from pydantic import BaseModel, ValidationError
 
 from app.ai import prompts
 from app.ai.base import AIError, CookContext
-from app.schemas import Detection, DishIdea, FullRecipe, IdeaList, json_schema
+from app.schemas import CookQuestion, Detection, DishIdea, FullRecipe, IdeaList, QuestionList, json_schema
 
 log = logging.getLogger("whatscooking.ai")
 
@@ -109,6 +109,10 @@ class OpenAICompatAI:
             {"type": "image_url", "image_url": {"url": url, "detail": "high"}},
         ]
         return await self._ask(Detection, content, lang, model=self._vision_model, effort=self._vision_effort)
+
+    async def ask_questions(self, ctx: CookContext) -> list[CookQuestion]:
+        answer = await self._ask(QuestionList, [{"type": "text", "text": prompts.questions_prompt(ctx)}], ctx.lang)
+        return answer.questions
 
     async def suggest_dishes(self, ctx: CookContext, count: int = 5) -> list[DishIdea]:
         answer = await self._ask(IdeaList, [{"type": "text", "text": prompts.suggest_prompt(ctx, count)}], ctx.lang)

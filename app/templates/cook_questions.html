@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% from "_ui.html" import icon, order_stub with context %}
+{% block title %}{{ t('questions.title') }}{% endblock %}
+{% block content %}
+<form class="order" method="post" action="/cook/answers" data-busy>
+  <div class="leaf leaf-order">
+    <header class="leaf-head">
+      <h1>{{ t('cook.order') }}</h1>
+      <p class="leaf-date">{{ today }}</p>
+    </header>
+    {{ order_stub(source, options) }}
+    <div class="order-body">
+      <div class="questions-head">
+        <h2 class="leaf-sub">{{ t('questions.count', n=questions | length) }}</h2>
+        <p class="hint">{{ t('questions.lead') }}</p>
+      </div>
+      {% for q in questions %}
+      {% set qi = loop.index0 %}
+      {% set chosen = picked[qi] %}
+      <fieldset class="choices">
+        <legend class="legend-prose">{{ q.question }}</legend>
+        <label><input type="radio" name="q{{ qi }}" value=""{% if not chosen %} checked{% endif %}><span>{{ t('questions.either') }}</span></label>
+        {% for answer in q.answers %}
+        <label><input type="radio" name="q{{ qi }}" value="{{ answer }}"{% if answer == chosen %} checked{% endif %}><span>{{ answer }}</span></label>
+        {% endfor %}
+      </fieldset>
+      {% endfor %}
+    </div>
+  </div>
+  {# On a phone, Find dishes stays docked above the tab bar until the page reaches it. #}
+  <div class="actions actions-dock">
+    <div class="actions-form actions-wide">
+      <button class="btn btn-primary btn-wide">{{ t('cook.find') }}{{ icon('next') }}</button>
+      <p class="busy" data-busy-panel role="status" hidden>{{ t('cook.busy') }}</p>
+    </div>
+  </div>
+</form>
+{% endblock %}

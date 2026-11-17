@@ -8,7 +8,7 @@ from sqlmodel import Session
 from app import auth, i18n
 from app.db import get_session
 from app.models import User
-from app.web import current_lang, redirect, render
+from app.web import current_lang, local_path, redirect, remember_language, render
 
 router = APIRouter()
 
@@ -63,13 +63,5 @@ def set_language(
     back: Annotated[str, Form()] = "/",
     session: Session = Depends(get_session),
 ):
-    if lang in i18n.LANGS:
-        request.session["lang"] = lang
-        user = _signed_in_user(request, session)
-        if user is not None:
-            user.lang = lang
-            session.add(user)
-            session.commit()
-    # only ever redirect to a path on this site
-    target = back if back.startswith("/") and not back.startswith("//") and "\\" not in back else "/"
-    return redirect(target)
+    remember_language(request, session, _signed_in_user(request, session), lang)
+    return redirect(local_path(back))

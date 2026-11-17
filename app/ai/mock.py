@@ -7,7 +7,7 @@ ingredients come back every time. The app labels demo mode on every page.
 import re
 
 from app.ai.base import CookContext
-from app.schemas import Detection, DetectedIngredient, DishIdea, FullRecipe, RecipeIngredient
+from app.schemas import CookQuestion, Detection, DetectedIngredient, DishIdea, FullRecipe, RecipeIngredient
 
 _SAMPLE = {
     "en": [("Kangkung", "1 bunch", "produce", "high"), ("Eggs", "6", "dairy_egg", "high"),
@@ -35,6 +35,15 @@ _STYLES = {
 
 _EXTRA = {"en": ["Spring onion", "Ginger", "Chilli"], "zh": ["青葱", "姜", "辣椒"]}
 
+_QUESTIONS = {
+    "en": {"soup": ("Clear or creamy?", ["Clear broth", "Creamy"]),
+           "body": ("Light or filling?", ["Something light", "Filling"]),
+           "spice": ("How spicy?", ["Not spicy", "A little", "Very spicy"])},
+    "zh": {"soup": ("清汤还是浓汤？", ["清汤", "浓汤"]),
+           "body": ("清淡还是饱肚？", ["清淡一点", "要饱肚"]),
+           "spice": ("要多辣？", ["不辣", "微辣", "很辣"])},
+}
+
 
 def _bare(line: str) -> str:
     return re.sub(r"\s*\(.*\)\s*$", "", line).strip()
@@ -55,15 +64,24 @@ class MockAI:
             ))
         return Detection(ingredients=ingredients)
 
+    async def ask_questions(self, ctx: CookContext) -> list[CookQuestion]:
+        asked = _QUESTIONS.get(ctx.lang, _QUESTIONS["en"])
+        keys = ["soup" if "soup" in ctx.dish_type else "body", "spice"]
+        return [CookQuestion(question=asked[key][0], answers=list(asked[key][1])) for key in keys]
+
     async def suggest_dishes(self, ctx: CookContext, count: int = 5) -> list[DishIdea]:
         lang = ctx.lang if ctx.lang in _STYLES else "en"
-        names = [_bare(line) for line in ctx.ingredients] or [row[0] for row in _SAMPLE[lang]]
+        have = [_bare(line) for line in ctx.ingredients]
+        names = [row[0] for row in _SAMPLE[lang]] if ctx.today or not have else have
         ideas: list[DishIdea] = []
         for index, (title, blurb, minutes, difficulty, cuisine) in enumerate(_STYLES[lang][:count]):
             first = names[index % len(names)]
             second = names[(index + 1) % len(names)]
             uses = list(dict.fromkeys([first, second, *names[:3]]))
             missing = _EXTRA[lang][: index % 3] if ctx.extras_ok else []
+            if ctx.today:  # chosen without the kitchen; what it has is marked afterwards
+                missing = [name for name in uses if name not in have] + _EXTRA[lang][: index % 3]
+                uses = [name for name in uses if name in have]
             ideas.append(DishIdea(
                 title=title.format(a=first, b=second),
                 blurb=blurb.format(a=first, b=second),

@@ -44,6 +44,17 @@ class IdeaList(BaseModel):
     ideas: list[DishIdea]
 
 
+class CookQuestion(BaseModel):
+    """A short multiple-choice question asked before dishes are suggested."""
+
+    question: str
+    answers: list[str]
+
+
+class QuestionList(BaseModel):
+    questions: list[CookQuestion]
+
+
 class RecipeIngredient(BaseModel):
     name: str
     amount: str

@@ -114,3 +114,10 @@ def find_conflicts(ingredients: list[str], allergies: list[str], diets: list[str
             elif rule in allergies and _matches(rule, text):
                 found.append(Conflict(ingredient, rule, custom=True))
     return found
+
+
+def dish_conflicts(title: str, ingredients: list[str], allergies: list[str], diets: list[str]) -> list[Conflict]:
+    """Conflicts in a dish's ingredients, plus its title for any rule no ingredient already shows."""
+    found = find_conflicts(ingredients, allergies, diets)
+    shown = {conflict.rule for conflict in found}
+    return found + [c for c in find_conflicts([title], allergies, diets) if c.rule not in shown]

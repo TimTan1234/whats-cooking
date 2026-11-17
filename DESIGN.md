@@ -18,7 +18,7 @@ colors:
 typography:
   numeral-display:
     fontFamily: "Barlow Condensed, PingFang SC, Hiragino Sans GB, Noto Sans SC, Noto Sans CJK SC, Microsoft YaHei, system-ui, sans-serif"
-    fontSize: "clamp(6rem, 32vw, 8rem)"
+    fontSize: "clamp(5rem, min(32vw, 16svh), 8rem)"
     fontWeight: 800
     lineHeight: 0.8
     letterSpacing: "-0.02em"
@@ -240,7 +240,7 @@ Both families are self-hosted Latin subsets with `font-display: swap`; Barlow 40
 **Character:** a printer's pairing from one family: the condensed cut speaks in caps like an almanac's dateline and numerals, the regular cut reads plainly at kitchen distance. Figures are tabular everywhere.
 
 ### Hierarchy
-- **Numeral Display** (800, clamp(6rem, 32vw, 8rem), 0.8): tonight's leaf numeral on the kitchen screen. The "/ total" beside it is 800 at 2rem.
+- **Numeral Display** (800, clamp(5rem, min(32vw, 16svh), 8rem), 0.8): tonight's leaf numeral on the kitchen screen; it gives up height on short phones so the dish title stays on the first screen. The "/ total" beside it is 800 at 2rem.
 - **Numeral** (800, 4.5rem, 0.8): the numeral on idea and recipe leaves; "/ total" at 1.75rem, the "in hand" label in condensed 600 caps, muted, wrapped to 3.5em.
 - **Headline** (Barlow 700, 2rem, 1.1, balanced): page titles outside a leaf.
 - **Title** (Barlow 700, 1.5rem, 1.15, balanced): dish titles under the leaf's black rule on idea leaves.
@@ -250,7 +250,7 @@ Both families are self-hosted Latin subsets with `font-display: swap`; Barlow 40
 - **Body** (Barlow 400, 1.0625rem, 1.45): reading text. Method steps run at 1.125rem / 1.5; leaf leads at 1.125rem. Lists hold to 68ch.
 - **Button** (Barlow 600, 1.125rem, 1.15): button labels in sentence case.
 - **Label** (Condensed 600, 0.9375rem, caps, 0.08em): field labels, leaf date and rank, the leaf foot meta line, back links, tabs (1.0625rem on the tab bar).
-- **Tag** (Condensed 800, 0.8125rem, caps): inked tags (demo, best match), the "need" note on to-buy lines, review flags.
+- **Tag** (Condensed 800, 0.8125rem, caps): inked tags (demo, best match). Two state notes the cook must read at arm's length, in Chinese too, step up to 0.9375rem: the "to buy" note on ingredient lines (Condensed 600) and the "Not sure, tick to keep" flag on scan review rows (Condensed 800, red).
 
 ### Named Rules
 **The Condensed Caps Rule.** Everything that labels, dates or counts is Barlow Condensed in caps tracked 0.08em; everything that names a dish or is read through is Barlow in sentence case. In Simplified Chinese, tracking drops to 0.02em and body line height rises to 1.65.
@@ -263,7 +263,7 @@ On the phone the four text tabs are a fixed bar at the bottom (4rem plus the saf
 
 Lists are rows on rules rather than cards: pantry, saved recipes and history are 52px-minimum rows separated by 1px grey lines, name left, meta right. Ingredient lines are small print in newspaper columns (2 on phone, 3 wide); amounts are name-left, quantity-right rows; method steps carry a condensed 800 step number in a 2.25rem gutter.
 
-**The Thumb Reach Rule.** Every control is at least 44px tall and every primary control 56px (the `tap` step); fields are 52px; chips and toggles 48px.
+**The Thumb Reach Rule.** Every control is at least 44px tall and every primary control 56px (the `tap` step); fields are 52px; chips and toggles 48px. On phones, a leaf's main actions (Get the recipe, Other dishes, the Cook tab's Find dishes) dock on a wall-grey band directly above the tab bar until the page scrolls to them, so the primary action is always within reach.
 
 ## Elevation & Depth
 
@@ -282,7 +282,7 @@ Square corners on everything: buttons, inputs, selects, chips, checkboxes, leave
 ### Buttons
 Full-width, square, sentence-case slabs sized for a wet hand.
 - **Shape:** square (0px), 1.5px black border, minimum 56px tall, 8px 16px padding, icon and label gapped 10px.
-- **Primary:** almanac black with white label. One per screen: Cook this, Find dishes, Log it.
+- **Primary:** almanac black with white label. One per screen: Get the recipe, Find dishes, Log it. On the ideas page it goes only to the best match; a dish that may clash with the profile never gets it.
 - **Secondary:** newsprint leaf fill with black label, for the paired alternative (Other dishes, Save).
 - **Outline:** transparent on the wall with black label, for routes such as Scan ingredients and the icon-only add button (56px square).
 - **Danger:** red border, deep red label; red wash on hover and press.
@@ -291,7 +291,7 @@ Full-width, square, sentence-case slabs sized for a wet hand.
 
 ### Chips
 - **Style:** square segments 48px tall, 1.5px black border, leaf fill, Barlow 600. The rating row uses condensed 800 numerals, 48px wide.
-- **State:** the chosen chip is inked in (black fill, white text); disabled chips lose their fill and turn grey. Stacked chips run full width for longer choices.
+- **State:** the chosen chip is inked in (black fill, white text); disabled chips lose their fill and turn grey.
 
 ### Inputs / Fields
 - **Style:** 52px tall, 1.5px black border, leaf fill, square, body-size text; textareas start at 8rem. Selects carry a black chevron. Labels sit above in condensed caps.
@@ -306,19 +306,25 @@ Full-width, square, sentence-case slabs sized for a wet hand.
 ### Notices
 - **Confirmation (ok):** green text and 1.5px border on green wash.
 - **Error:** deep red on red wash.
-- **Allergy warning:** deep red on red wash with a 4px top border, a condensed caps title with the alert icon, and the conflicting ingredients in 600 weight.
+- **Field error:** a problem with one field is said at that field: deep red 600 small text with the alert icon under it, a red border on the field, and the field focused and described by the message.
+- **Allergy warning:** deep red on red wash with a 4px top border, a condensed caps title with the alert icon, the conflicting ingredients in 600 weight, and the line that the check can miss things. When every idea clashes, one page warning above the leaves names the rules, carries that line and offers different dishes; each leaf then keeps only its title and ingredient lines.
 - **Demo banner:** a black-ruled leaf strip led by an inked "demo" tag, shown whenever the app runs without an AI key.
 
 ### The Leaf (signature)
-The unit every dish is printed on: tonight's dish, each idea, each recipe, and the blank and form leaves.
+The unit every dish is printed on: tonight's dish, each idea, each recipe, the Cook tab's order leaf, and the blank and form leaves.
 - **Build:** leaf fill, 6px red head rule, perforation row, 18px 16px 16px padding (22px 24px wide).
 - **Head:** the leaf's name or rank on the left, the date or a badge on the right, all in condensed caps; "best match" is an inked tag, "cooked" is a 2px red outlined stamp.
-- **Numeral:** the red count in hand, then "/ total" in black, then the muted "in hand" label, bottom-aligned.
+- **Numeral:** the red count in hand, then "/ total" in black, then the muted "in hand" label, bottom-aligned. On idea leaves a black condensed-caps tally at 0.9375rem sits under it ("Nothing to buy", "2 to buy"), the measure the ideas are ranked by.
 - **Body:** the dish title under a 1.5px black rule, ingredient lines with the ones to buy in red 600 and a "need" note, then the foot meta line (time · difficulty · cuisine) in muted condensed caps.
 - **Tear:** logging a dish as cooked tears the leaf: a copy of the leaf rotates away down-left and fades over 900ms on the system ease, and the cooked stamp lands at 520ms over 360ms. With reduced motion the tear is removed and all animation is cut to 1ms.
 
+### The Order Leaf (Cook)
+Step 1 of the Cook tab is a leaf titled "Tonight's order". Under the head sits the profile line, diets kept apart from allergies ("Diet: Halal · Avoiding: Eggs." / "饮食：清真 · 避开：蛋类。") with a Change in profile link, then the source as two chips: the kitchen count in condensed 800 figures with "in your kitchen", and "A list I type", which opens the list field. An empty kitchen replaces the chips with a condensed-caps "empty" line and an outline Scan button. A 1.5px black rule leads to the kind-of-dish chips and a two-line craving field. Time, cuisine, meal, servings and extras fold into one muted condensed-caps line ("No rush · Any cuisine · 2 people · Buying a few is fine") with a Change control that opens them in place; they carry over from the last request, while dish and craving start fresh each time. "Not sure?" with an outline Today for you button sits above the leaf; the count stays black, since the red numeral belongs to dishes.
+
+When the AI asks questions, they continue on the same leaf: the same head and date, then the **order stub**, one muted condensed-caps line of what was asked for (dish, the craving in quotes and in the user's own sentence case, the source count, time, cuisine, meal) with a Change link, a 1.5px black rule, a condensed sub-head ("2 quick questions") and the questions in sentence case, "Either is fine" first and pre-selected. Find dishes stays docked below the leaf. The ideas page repeats the same stub under its lead, with the answers added ("How spicy? A little"), between two 1px grey rules; dishes from Today for you have no stub.
+
 ### Scan Review
-Photos sit in a horizontal snap strip on black (15rem tall, 20rem wide). Each detection is drawn on the preview as a numbered box, black when confident and red when unsure, and the review list repeats those numbers in condensed 800 beside a checkbox, an editable name and quantity, and a red condensed-caps flag for unsure items.
+Photos sit in a horizontal snap strip on black, 15rem tall on phones and 20rem from 760px, each 85% of the column wide so the next one peeks in at the edge; with more than one photo, a muted condensed "1 / 3" count sits under each photo, clear of the numbered box tags. Each detection is drawn on the preview as a numbered box, black when confident and red when unsure, and the review list repeats those numbers in condensed 800 beside a checkbox, an editable name and quantity, and a red condensed-caps flag for unsure items. An unticked row stays editable but its fields turn muted and struck through until it is ticked again or focused. Below 560px each row stacks: the name takes the full width and the amount sits beneath it; from 560px, name and amount share one line.
 
 ## Do's and Don'ts
 

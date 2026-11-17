@@ -4,8 +4,22 @@
 {% block content %}
 <h1>{{ t('scan.title') }}</h1>
 <p class="lead">{{ t('scan.lead', n=max_photos, mb=max_mb) }}</p>
-{% if error %}<p class="notice notice-error" role="alert">{{ error }}</p>{% endif %}
-<form class="stack" method="post" action="/scan" enctype="multipart/form-data" data-busy data-photos data-max="{{ max_photos }}">
+<details class="tips">
+  <summary>{{ t('scan.tips_title') }}</summary>
+  <ul class="plain">
+    <li>{{ t('scan.tip1') }}</li>
+    <li>{{ t('scan.tip2') }}</li>
+    <li>{{ t('scan.tip3') }}</li>
+  </ul>
+</details>
+<p class="notice notice-error" role="alert" tabindex="-1" data-scan-error{% if not error %} hidden{% endif %}>{{ error }}</p>
+<form class="stack" method="post" action="/scan" enctype="multipart/form-data" data-busy data-photos data-max="{{ max_photos }}"
+      data-max-bytes="{{ max_mb * 1024 * 1024 }}"
+      data-msg-none="{{ t('scan.no_photo') }}"
+      data-msg-big="{{ t('scan.too_big_named', name='{name}', mb=max_mb) }}"
+      data-msg-dropped-one="{{ t('scan.dropped', n=1, max=max_photos) }}"
+      data-msg-dropped="{{ t('scan.dropped', n='{n}', max=max_photos) }}"
+      data-msg-offline="{{ t('scan.offline') }}">
   <div class="pickers">
     <label class="picker">
       {{ icon('scan') }}
@@ -28,14 +42,6 @@
   <p class="chosen" role="status" data-one="{{ t('scan.chosen', n=1) }}" data-many="{{ t('scan.chosen', n='{n}') }}" data-full="{{ t('scan.full', n='{n}') }}"></p>
   <button class="btn btn-primary">{{ t('scan.submit') }}</button>
   <p class="busy" data-busy-panel role="status" hidden>{{ t('scan.busy') }}</p>
+  <p class="hint">{{ t('scan.privacy_demo') if demo_mode else t('scan.privacy', service=ai_service) }}</p>
 </form>
-<section class="section">
-  <h2 class="section-head">{{ t('scan.tips_title') }}</h2>
-  <ul class="plain">
-    <li>{{ t('scan.tip1') }}</li>
-    <li>{{ t('scan.tip2') }}</li>
-    <li>{{ t('scan.tip3') }}</li>
-  </ul>
-  <p class="hint">{{ t('scan.privacy', service=ai_service) }}</p>
-</section>
 {% endblock %}

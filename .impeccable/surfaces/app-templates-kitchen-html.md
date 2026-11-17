@@ -21,7 +21,7 @@ OWN-WORLD: Newsprint-white leaves on a grey wall ground, almanac black for text,
 
 STORY: The cook sees tonight's dish and the count in hand at a glance, sees in red the one thing to buy, picks it, and cooks from the same leaf.
 
-FIRST VIEWPORT: Black header with name and the account. Tonight's leaf: date and day line, a huge red condensed numeral "5" with "/ 6 in hand", dish title under a black rule, a two-column small-print ingredient list with the missing line in red, a meta foot line. Then Cook this and Other dishes side by side, Scan ingredients below, text tab bar at the thumb.
+FIRST VIEWPORT: Black header with name and the account. Tonight's leaf: date and day line, a huge red condensed numeral "5" with "/ 6 in hand", dish title under a black rule, a two-column small-print ingredient list with the missing line in red, a meta foot line. Then Get the recipe and Other dishes side by side, Scan ingredients below, text tab bar at the thumb.
 
 FORM: Chosen by the user from the decision round (the pick card, first on the grounded list). seed:44a4729c89392e0c. Signature interaction: the leaf numeral on every dish leaf (tonight, ideas, recipe); logging a dish as cooked tears the leaf, the one authored motion.
 

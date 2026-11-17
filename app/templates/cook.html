@@ -1,41 +1,93 @@
 {% extends "base.html" %}
+{% from "_ui.html" import icon, today_button with context %}
 {% block title %}{{ t('cook.title') }}{% endblock %}
 {% block content %}
-<h1>{{ t('cook.title') }}</h1>
-<p class="lead">{% if rules %}{{ t('cook.following', rules=rules | join(', ' if lang == 'en' else '、')) }}{% else %}{{ t('cook.no_rules') }}{% endif %} <a href="/profile">{{ t('cook.change_rules') }}</a></p>
-{% if error %}<p class="notice notice-error" role="alert">{{ error }}</p>{% endif %}
-<form class="stack" method="post" action="/cook" data-busy>
-  <fieldset class="choices choices-stack">
-    <legend>{{ t('cook.source') }}</legend>
-    <label><input type="radio" name="source" value="pantry"{% if source != 'custom' %} checked{% endif %}{% if not pantry_count %} disabled{% endif %}><span>{{ t('cook.source_pantry', n=pantry_count) }}</span></label>
-    <label><input type="radio" name="source" value="custom"{% if source == 'custom' %} checked{% endif %}><span>{{ t('cook.source_custom') }}</span></label>
-    <label class="field custom-list"><span>{{ t('cook.custom_label') }}</span>
-      <textarea name="custom" rows="5" maxlength="6000" autocomplete="off">{{ custom }}</textarea></label>
-  </fieldset>
-  <fieldset class="choices">
-    <legend>{{ t('cook.time') }}</legend>
-    {% for minutes in times %}
-    <label><input type="radio" name="minutes" value="{{ minutes }}"{% if options.minutes == minutes %} checked{% endif %}><span>{% if minutes %}{{ t('cook.minutes', n=minutes) }}{% else %}{{ t('cook.any_time') }}{% endif %}</span></label>
-    {% endfor %}
-  </fieldset>
-  <div class="pair">
-    <label class="field"><span>{{ t('cook.cuisine') }}</span>
-      <select name="cuisine">
-        <option value="">{{ t('cook.any') }}</option>
-        {% for cuisine in cuisines %}<option value="{{ cuisine }}"{% if options.cuisine == cuisine %} selected{% endif %}>{{ t('cuisine.' ~ cuisine) }}</option>{% endfor %}
-      </select></label>
-    <label class="field"><span>{{ t('cook.meal') }}</span>
-      <select name="meal">
-        <option value="">{{ t('cook.any') }}</option>
-        {% for meal in meals %}<option value="{{ meal }}"{% if options.meal == meal %} selected{% endif %}>{{ t('meal.' ~ meal) }}</option>{% endfor %}
-      </select></label>
+<div class="today-strip">
+  <p>{{ t('today.unsure') }}</p>
+  {{ today_button() }}
+</div>
+<p class="hint today-hint">{{ t('today.explain') }}</p>
+<form class="order" method="post" action="/cook/questions" data-busy>
+  <div class="leaf leaf-order">
+    <header class="leaf-head">
+      <h1>{{ t('cook.order') }}</h1>
+      <p class="leaf-date">{{ today }}</p>
+    </header>
+    {% set sep = ', ' if lang == 'en' else '、' %}
+    <p class="leaf-source">
+      {%- if diets and allergies %}{{ t('cook.rules_both', diets=diets | join(sep), allergies=allergies | join(sep)) }}
+      {%- elif diets %}{{ t('cook.rules_diet', diets=diets | join(sep)) }}
+      {%- elif allergies %}{{ t('cook.rules_avoid', allergies=allergies | join(sep)) }}
+      {%- else %}{{ t('cook.no_rules') }}{% endif %}{% if lang == 'en' %} {% endif %}<a href="/profile">{{ t('cook.change_rules') }}</a></p>
+    {% if pantry_count %}
+    <fieldset class="choices order-source">
+      <legend class="visually-hidden">{{ t('cook.source') }}</legend>
+      <label><input type="radio" name="source" value="pantry"{% if source != 'custom' %} checked{% endif %}><span><b class="order-count">{{ pantry_count }}</b>{{ t('cook.in_kitchen') }}</span></label>
+      <label><input type="radio" name="source" value="custom"{% if source == 'custom' %} checked{% endif %}><span>{{ t('cook.source_custom') }}</span></label>
+    </fieldset>
+    {% else %}
+    <p class="order-empty">{{ t('kitchen.empty_title') }}</p>
+    <a class="btn btn-outline order-scan" href="/scan">{{ icon('scan') }}{{ t('action.scan') }}</a>
+    <input type="hidden" name="source" value="custom">
+    {% endif %}
+    <div class="custom-list">
+      <label class="field"><span>{{ t('cook.custom_label') }}</span>
+        <textarea name="custom" rows="5" maxlength="6000"
+          {%- if invalid == 'custom' %} aria-invalid="true" aria-describedby="custom-error" autofocus{% endif %}>{{ custom }}</textarea></label>
+      {% if invalid == 'custom' %}<p class="field-error" id="custom-error">{{ icon('alert') }}{{ t('cook.empty_custom') }}</p>{% endif %}
+    </div>
+    <div class="order-body">
+      <fieldset class="choices">
+        <legend>{{ t('cook.dish_type') }}</legend>
+        <label><input type="radio" name="dish_type" value=""{% if not options.dish_type %} checked{% endif %}><span>{{ t('cook.any') }}</span></label>
+        {% for kind in dish_types %}
+        <label><input type="radio" name="dish_type" value="{{ kind }}"{% if options.dish_type == kind %} checked{% endif %}><span>{{ t('dish.' ~ kind) }}</span></label>
+        {% endfor %}
+      </fieldset>
+      <label class="field"><span>{{ t('cook.craving') }}</span>
+        <textarea class="textarea-short" name="craving" rows="2" maxlength="300" placeholder="{{ t('cook.craving_hint') }}">{{ options.craving }}</textarea></label>
+      <details class="order-settings">
+        <summary>
+          <span class="order-settings-line">
+            {{- t('cook.minutes', n=options.minutes) if options.minutes else t('cook.any_time') }} · {{ t('cuisine.' ~ options.cuisine) if options.cuisine else t('cook.any_cuisine') }}
+            {%- if options.meal %} · {{ t('meal.' ~ options.meal) }}{% endif %} · {{ t('cook.people', n=options.servings) }} · {{ t('cook.extras_short') if options.extras_ok else t('cook.only_mine') -}}
+          </span>
+          <span class="order-settings-change">{{ t('cook.change') }}{{ icon('next') }}</span>
+        </summary>
+        <div class="order-settings-body">
+          <fieldset class="choices">
+            <legend>{{ t('cook.time') }}</legend>
+            {% for minutes in times %}
+            <label><input type="radio" name="minutes" value="{{ minutes }}"{% if options.minutes == minutes %} checked{% endif %}><span>{% if minutes %}{{ t('cook.minutes', n=minutes) }}{% else %}{{ t('cook.any_time') }}{% endif %}</span></label>
+            {% endfor %}
+          </fieldset>
+          <div class="pair">
+            <label class="field"><span>{{ t('cook.cuisine') }}</span>
+              <select name="cuisine">
+                <option value="">{{ t('cook.any') }}</option>
+                {% for cuisine in cuisines %}<option value="{{ cuisine }}"{% if options.cuisine == cuisine %} selected{% endif %}>{{ t('cuisine.' ~ cuisine) }}</option>{% endfor %}
+              </select></label>
+            <label class="field"><span>{{ t('cook.meal') }}</span>
+              <select name="meal">
+                <option value="">{{ t('cook.any') }}</option>
+                {% for meal in meals %}<option value="{{ meal }}"{% if options.meal == meal %} selected{% endif %}>{{ t('meal.' ~ meal) }}</option>{% endfor %}
+              </select></label>
+          </div>
+          <label class="field field-narrow"><span>{{ t('cook.servings') }}</span>
+            <select name="servings">
+              {% for n in range(1, 9) %}<option value="{{ n }}"{% if options.servings == n %} selected{% endif %}>{{ n }}</option>{% endfor %}
+            </select></label>
+          <label class="toggle"><input class="check" type="checkbox" name="extras_ok" value="1"{% if options.extras_ok %} checked{% endif %}><span>{{ t('cook.extras') }}</span></label>
+        </div>
+      </details>
+    </div>
   </div>
-  <label class="field field-narrow"><span>{{ t('cook.servings') }}</span>
-    <select name="servings">
-      {% for n in range(1, 9) %}<option value="{{ n }}"{% if options.servings == n %} selected{% endif %}>{{ n }}</option>{% endfor %}
-    </select></label>
-  <label class="toggle"><input class="check" type="checkbox" name="extras_ok" value="1"{% if options.extras_ok %} checked{% endif %}><span>{{ t('cook.extras') }}</span></label>
-  <button class="btn btn-primary">{{ t('cook.submit') }}</button>
-  <p class="busy" data-busy-panel role="status" hidden>{{ t('cook.busy') }}</p>
+  {# On a phone, Next stays docked above the tab bar until the page reaches it. #}
+  <div class="actions actions-dock">
+    <div class="actions-form actions-wide">
+      <button class="btn btn-primary btn-wide">{{ t('cook.find') }}{{ icon('next') }}</button>
+      <p class="busy" data-busy-panel role="status" hidden>{{ t('cook.asking') }}</p>
+    </div>
+  </div>
 </form>
 {% endblock %}

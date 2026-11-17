@@ -9,7 +9,7 @@ from app import auth, i18n
 from app.auth import current_user
 from app.db import get_session
 from app.models import User
-from app.services import recommend
+from app.services import recommend, taste
 from app.services.safety import ALLERGENS, DIETS
 from app.services.text import clean, split_list
 from app.web import flash, redirect, render
@@ -18,13 +18,14 @@ router = APIRouter()
 
 
 @router.get("/profile")
-def profile_page(request: Request, user: User = Depends(current_user)):
+def profile_page(request: Request, user: User = Depends(current_user), session: Session = Depends(get_session)):
     known = [a for a in user.allergies or [] if a in ALLERGENS]
     other = [a for a in user.allergies or [] if a not in ALLERGENS]
     return render(
         request, "profile.html", user=user, active="profile",
         diets=DIETS, allergens=ALLERGENS, cuisines=recommend.CUISINES, skills=recommend.SKILLS,
         known_allergies=known, other_allergies=", ".join(other), min_password=auth.MIN_PASSWORD_LENGTH,
+        taste=taste.summary(session, user),
     )
 
 
@@ -41,10 +42,18 @@ async def save_profile(request: Request, user: User = Depends(current_user), ses
     user.cuisines = [c for c in recommend.CUISINES if c in form.getlist("cuisines")]
     skill = form.get("skill", user.skill)
     user.skill = skill if skill in recommend.SKILLS else "home"
+    taste.save_likes(session, user, str(form.get("likes", "")))
     session.add(user)
     session.commit()
     request.session["lang"] = user.lang
     flash(request, "ok", i18n.t(user.lang, "profile.saved"))
+    return redirect("/profile")
+
+
+@router.post("/profile/taste/reset")
+def forget_taste(request: Request, user: User = Depends(current_user), session: Session = Depends(get_session)):
+    taste.reset(session, user)
+    flash(request, "ok", i18n.t(user.lang, "taste.forgotten"))
     return redirect("/profile")
 
 

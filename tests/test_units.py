@@ -1,8 +1,8 @@
 """Pure logic: ingredient keys, allergy and diet checks, ranking, translations."""
 
 from app import i18n
-from app.schemas import Detection, DishIdea, FullRecipe, IdeaList, json_schema
-from app.services.safety import find_conflicts
+from app.schemas import Detection, DishIdea, FullRecipe, IdeaList, QuestionList, json_schema
+from app.services.safety import dish_conflicts, find_conflicts
 from app.services.text import name_key, split_list
 
 
@@ -97,8 +97,50 @@ def test_ranking_puts_conflicts_last_then_fewest_missing():
     assert (ranked[2].have, ranked[2].total) == (1, 3)
 
 
+def test_taste_order_keeps_the_ai_order_with_conflicts_last():
+    from app.models import User
+    from app.services.recommend import rank_ideas
+
+    def idea(title, missing):
+        return DishIdea(title=title, blurb="", minutes=20, difficulty="easy", cuisine="", uses=[], missing=missing)
+
+    user = User(username="x", password_hash="x", allergies=["peanut"], diets=[])
+    ranked = rank_ideas([idea("Satay", ["peanuts"]), idea("Laksa", ["a", "b", "c"]), idea("Bubur", ["rice"])],
+                        user, by_kitchen=False)
+    assert [r.idea.title for r in ranked] == ["Laksa", "Bubur", "Satay"]
+
+
+def test_cook_options_keep_known_dish_types_and_old_stored_options():
+    from app.services.recommend import CookOptions
+
+    assert CookOptions(dish_type="pizza").dish_type == ""
+    assert CookOptions(dish_type="soup", craving="  warm   and  soft ").craving == "warm and soft"
+    old = CookOptions.model_validate({"ingredients": ["Eggs"], "minutes": 15, "cuisine": "", "meal": "",
+                                      "servings": 2, "extras_ok": True})
+    assert (old.dish_type, old.craving, old.answers) == ("", "", [])
+
+
+def test_prompts_carry_the_dish_type_craving_answers_and_taste():
+    from app.ai import prompts
+    from app.ai.base import CookContext
+
+    ctx = CookContext(
+        ingredients=["Eggs (6)"], dish_type="a soup", craving="something warm", answers=["Clear or creamy? → Clear"],
+        likes="laksa", usual_dish_types=["a noodle dish"], disliked_titles=["Bitter gourd stir-fry"],
+    )
+    text = prompts.suggest_prompt(ctx, 5)
+    for part in ("a soup", '"something warm"', "Clear or creamy? → Clear", "laksa", "a noodle dish",
+                 "Bitter gourd stir-fry", "up to 3 ingredients"):
+        assert part in text, part
+    assert "a soup" in prompts.questions_prompt(ctx) and "laksa" in prompts.questions_prompt(ctx)
+
+    today = prompts.suggest_prompt(CookContext(ingredients=[], likes="laksa", today=True), 5)
+    assert "not from what is in their kitchen" in today and "laksa" in today
+    assert "up to 3 ingredients" not in today and "(nothing listed)" in today
+
+
 def test_ai_schemas_have_no_refs_or_defaults():
-    for model in (Detection, IdeaList, FullRecipe):
+    for model in (Detection, IdeaList, QuestionList, FullRecipe):
         text = str(json_schema(model))
         assert "$ref" not in text and "$defs" not in text and "'default'" not in text
 
@@ -116,7 +158,7 @@ def test_ai_schemas_keep_every_required_field():
             for item in node:
                 yield from objects(item)
 
-    for model in (Detection, IdeaList, FullRecipe):
+    for model in (Detection, IdeaList, QuestionList, FullRecipe):
         for schema in (json_schema(model), strict_schema(json_schema(model))):
             for obj in objects(schema):
                 assert set(obj["required"]) == set(obj["properties"]), model.__name__
@@ -132,3 +174,10 @@ def test_translations_cover_both_languages_and_plurals():
     assert i18n.t("en", "scan.chosen", n=3) == "3 photos chosen"
     assert i18n.t("zh", "scan.chosen", n=1) == "已选 1 张"
     assert i18n.t("en", "no.such.key") == "no.such.key"
+
+
+def test_a_dish_title_only_adds_a_rule_its_ingredients_do_not_show():
+    found = dish_conflicts("Egg fried rice", ["Eggs", "Rice"], ["egg"], [])
+    assert [(c.ingredient, c.rule) for c in found] == [("Eggs", "egg")]
+    found = dish_conflicts("Peanut noodles", ["Noodles"], ["peanut"], [])
+    assert [(c.ingredient, c.rule) for c in found] == [("Peanut noodles", "peanut")]

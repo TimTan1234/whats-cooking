@@ -1,11 +1,18 @@
 {% extends "base.html" %}
 {% block title %}{{ t('saved.title') }}{% endblock %}
 {% block content %}
-<h1>{{ t('saved.title') }}</h1>
+<h1 class="section-head">{{ t('saved.title') }}</h1>
 {% if saved %}
 <ul class="rows">
-  {% for recipe in saved %}
-  <li><a href="/recipes/{{ recipe.id }}"><span class="row-name">{{ recipe.title }}</span><span class="row-meta">{{ t('cook.minutes', n=recipe.minutes) }} · {{ t('difficulty.' ~ recipe.difficulty) }}</span></a></li>
+  {% for row in saved %}
+  {% set recipe = row.recipe %}
+  <li><a class="row-leaf" href="/recipes/{{ recipe.id }}?from=saved">
+    <span class="row-count" aria-hidden="true">{% if row.total %}<b>{{ row.have }}</b>/{{ row.total }}{% endif %}</span>
+    <span class="row-name">{{ recipe.title }}</span>
+    <span class="row-meta">
+      {%- if row.total %}<span class="visually-hidden">{{ t('leaf.in_hand', have=row.have, total=row.total) }}. </span>{% endif %}
+      {%- if row.twin %}{{ t('leaf.written', day=local_day(recipe.created_at)) }} · {% endif %}
+      {{- t('cook.minutes', n=recipe.minutes) }}{% if row.rating %} · {{ t('saved.rated', n=row.rating) }}{% endif %}</span></a></li>
   {% endfor %}
 </ul>
 {% else %}
@@ -18,7 +25,9 @@
   {% if cooked %}
   <ul class="rows">
     {% for log, recipe in cooked %}
-    <li><a href="/recipes/{{ recipe.id }}"><span class="row-name">{{ recipe.title }}</span><span class="row-meta">{{ local_day(log.cooked_at) }}{% if log.rating %} · {{ t('saved.rated', n=log.rating) }}{% endif %}</span></a></li>
+    <li>{% set meta %}{{ local_day(log.cooked_at) }}{% if log.rating %} · {{ t('saved.rated', n=log.rating) }}{% endif %}{% endset %}
+      {%- if recipe.data.removed %}<span class="row-plain"><span class="row-name">{{ recipe.title }}</span><span class="row-meta">{{ meta }}</span></span>
+      {%- else %}<a href="/recipes/{{ recipe.id }}?from=saved"><span class="row-name">{{ recipe.title }}</span><span class="row-meta">{{ meta }}</span></a>{% endif %}</li>
     {% endfor %}
   </ul>
   {% else %}

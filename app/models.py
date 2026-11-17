@@ -66,3 +66,26 @@ class IdeaSet(SQLModel, table=True):
     options: dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON, nullable=False))
     ideas: list[dict[str, Any]] = Field(default_factory=list, sa_column=Column(JSON, nullable=False))
     created_at: datetime = Field(default_factory=utcnow)
+
+
+class Taste(SQLModel, table=True):
+    """What a user likes: typed on the profile, and learned from what they ask the Cook tab for."""
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="user.id", index=True, unique=True)
+    likes: str = ""
+    dish_types: dict[str, int] = Field(default_factory=dict, sa_column=Column(JSON, nullable=False))
+    cravings: list[str] = Field(default_factory=list, sa_column=Column(JSON, nullable=False))
+    answers: list[str] = Field(default_factory=list, sa_column=Column(JSON, nullable=False))
+    updated_at: datetime = Field(default_factory=utcnow)
+
+
+class CookDraft(SQLModel, table=True):
+    """The latest Cook choices on their way to dishes, with the AI's questions if it asked any (one row per user)."""
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="user.id", index=True, unique=True)
+    source: str = "pantry"
+    options: dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON, nullable=False))
+    questions: list[dict[str, Any]] = Field(default_factory=list, sa_column=Column(JSON, nullable=False))
+    created_at: datetime = Field(default_factory=utcnow)

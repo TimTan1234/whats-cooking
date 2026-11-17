@@ -23,6 +23,7 @@
   </fieldset>
   <label class="field"><span>{{ t('profile.other_allergies') }}</span><input name="other_allergies" value="{{ other_allergies }}" maxlength="300" autocomplete="off"></label>
   <p class="hint">{{ t('profile.allergy_note') }}</p>
+  <label class="field"><span>{{ t('profile.likes') }}</span><input name="likes" value="{{ taste.likes }}" maxlength="200" autocomplete="off"></label>
   <label class="field"><span>{{ t('profile.dislikes') }}</span><input name="dislikes" value="{{ user.dislikes }}" maxlength="200" autocomplete="off"></label>
   <fieldset class="choices">
     <legend>{{ t('profile.cuisines') }}</legend>
@@ -38,6 +39,23 @@
   </fieldset>
   <button class="btn btn-primary">{{ t('profile.save') }}</button>
 </form>
+
+<section class="section">
+  <h2 class="section-head">{{ t('taste.title') }}</h2>
+  {% if taste.dish_types or taste.cravings or taste.answers %}
+  <dl class="learned">
+    {% if taste.dish_types %}<dt>{{ t('taste.dish_types') }}</dt><dd>{% for kind in taste.dish_types %}{{ t('dish.' ~ kind) }}{% if not loop.last %}{{ ', ' if lang == 'en' else '、' }}{% endif %}{% endfor %}</dd>{% endif %}
+    {% if taste.cravings %}<dt>{{ t('taste.cravings') }}</dt><dd><ul class="plain">{% for line in taste.cravings %}<li>{{ line }}</li>{% endfor %}</ul></dd>{% endif %}
+    {% if taste.answers %}<dt>{{ t('taste.answers') }}</dt><dd><ul class="plain">{% for line in taste.answers %}<li>{{ line }}</li>{% endfor %}</ul></dd>{% endif %}
+  </dl>
+  <p class="hint">{{ t('taste.how') }}</p>
+  <form method="post" action="/profile/taste/reset">
+    <button class="btn btn-outline">{{ t('taste.forget') }}</button>
+  </form>
+  {% else %}
+  <p class="hint">{{ t('taste.none') }}</p>
+  {% endif %}
+</section>
 
 <section class="section">
   <h2 class="section-head">{{ t('profile.password_title') }}</h2>

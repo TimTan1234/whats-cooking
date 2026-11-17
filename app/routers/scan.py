@@ -3,6 +3,8 @@
 import asyncio
 import base64
 import logging
+from types import SimpleNamespace
+from urllib.parse import urlencode
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.concurrency import run_in_threadpool
@@ -20,7 +22,7 @@ from app.services import detect, pantry
 from app.services.detect import Found
 from app.services.images import ImageRejected, annotate, prepare_image
 from app.services.text import clean, name_key
-from app.web import flash, redirect, render
+from app.web import flash, redirect, remember_language, render
 
 router = APIRouter()
 log = logging.getLogger("whatscooking.scan")
@@ -58,7 +60,8 @@ async def scan(request: Request, user: User = Depends(current_user)):
     for upload in uploads:
         raw = await upload.read(limit + 1)
         if len(raw) > limit:
-            return _scan_page(request, user, i18n.t(lang, "scan.too_big", mb=settings.max_upload_mb), 413)
+            return _scan_page(request, user, i18n.t(lang, "scan.too_big_named", name=clean(upload.filename, 40),
+                                                    mb=settings.max_upload_mb), 413)
         try:
             images.append(await run_in_threadpool(prepare_image, raw))
         except ImageRejected:
@@ -70,7 +73,7 @@ async def scan(request: Request, user: User = Depends(current_user)):
         log.warning("Ingredient detection failed: %s", exc)
         return _scan_page(request, user, i18n.t(lang, f"ai.{exc.kind}"), 502)
     if not found:
-        return _scan_page(request, user, i18n.t(lang, "scan.nothing_found"), 200)
+        return _scan_page(request, user, i18n.t(lang, "scan.nothing_found"), 422)
 
     photos = []
     for index, image in enumerate(images):
@@ -89,37 +92,57 @@ async def find_ingredients(images: list[bytes], lang: str) -> list[Found]:
     return detect.merge([answer.ingredients for answer in answers])
 
 
-def read_review_form(form) -> list[tuple[str, str, str]]:
-    """Read the kept rows of the review form as (name, quantity, category)."""
+def _posted_rows(form) -> list[SimpleNamespace]:
+    """Every named row of the review form as posted, ticked or not."""
     try:
         count = min(int(form.get("count", 0)), MAX_ROWS + BLANK_ROWS)
     except (TypeError, ValueError):
         count = 0
-    entries: list[tuple[str, str, str]] = []
+    rows = []
     for index in range(count):
-        if not form.get(f"keep_{index}"):
-            continue
         name = clean(form.get(f"name_{index}", ""))
         if not name_key(name):
             continue
         category = form.get(f"cat_{index}", "other")
-        entries.append((name, clean(form.get(f"qty_{index}", ""), 40), category if category in CATEGORIES else "other"))
-    return entries
+        rows.append(SimpleNamespace(
+            number=clean(form.get(f"num_{index}", ""), 4),
+            name=name,
+            quantity=clean(form.get(f"qty_{index}", ""), 40),
+            category=category if category in CATEGORIES else "other",
+            confidence="low" if form.get(f"conf_{index}") == "low" else "high",
+            evidence=clean(form.get(f"why_{index}", ""), 120),
+            keep=bool(form.get(f"keep_{index}")),
+        ))
+    return rows
+
+
+def read_review_form(form) -> list[tuple[str, str, str]]:
+    """Read the kept rows of the review form as (name, quantity, category)."""
+    return [(row.name, row.quantity, row.category) for row in _posted_rows(form) if row.keep]
+
+
+def _review_again(request: Request, user: User, form, error: str = "", status_code: int = 200):
+    """The review as the person left it. Photos are not kept by the app, so they are not shown again."""
+    rows = _posted_rows(form)
+    return render(request, "scan_review.html", user=user, active="scan", rows=rows, blank_rows=BLANK_ROWS,
+                  photos=[], error=error, status_code=status_code)
 
 
 @router.post("/scan/save")
 async def save_scan(request: Request, user: User = Depends(current_user), session: Session = Depends(get_session)):
     form = await request.form()
+    switch = form.get("lang")
+    if switch in i18n.LANGS:
+        # the header's language button, pressed on the review: switch and show the same list again
+        remember_language(request, session, user, switch)
+        return _review_again(request, user, form)
     entries = read_review_form(form)
     if not entries:
-        flash(request, "error", i18n.t(user.lang, "scan.none_kept"))
-        return redirect("/scan")
+        return _review_again(request, user, form, i18n.t(user.lang, "scan.none_kept"), 400)
     if form.get("action") == "cook":
         # cook with just these, without touching the saved pantry
         lines = [f"{name} ({quantity})" if quantity else name for name, quantity, _ in entries]
-        from app.routers.cook import cook_form  # imported here to avoid a circular import
-
-        return cook_form(request, user, session, source="custom", custom="\n".join(lines))
+        return redirect("/cook?" + urlencode({"custom": "\n".join(lines)}))
     added = pantry.add_items(session, user, entries)
     flash(request, "ok", i18n.t(user.lang, "scan.saved", added=added, updated=len(entries) - added))
     return redirect("/")

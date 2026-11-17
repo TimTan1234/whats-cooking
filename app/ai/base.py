@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from typing import Protocol
 
-from app.schemas import Detection, DishIdea, FullRecipe
+from app.schemas import CookQuestion, Detection, DishIdea, FullRecipe
 
 
 class AIError(Exception):
@@ -40,12 +40,23 @@ class CookContext:
     extras_ok: bool = True
     recent_titles: list[str] = field(default_factory=list)
     liked_titles: list[str] = field(default_factory=list)
+    disliked_titles: list[str] = field(default_factory=list)
+    dish_type: str = ""  # "" means any
+    craving: str = ""  # what they feel like today, in their own words
+    answers: list[str] = field(default_factory=list)  # "question → answer" from the questions step
+    likes: str = ""  # foods they love, typed on the profile
+    usual_dish_types: list[str] = field(default_factory=list)
+    recent_cravings: list[str] = field(default_factory=list)
+    recent_answers: list[str] = field(default_factory=list)
+    today: bool = False  # suggest from taste alone, not from the kitchen
 
 
 class AIProvider(Protocol):
     is_mock: bool
 
     async def detect_ingredients(self, image: bytes, lang: str) -> Detection: ...
+
+    async def ask_questions(self, ctx: CookContext) -> list[CookQuestion]: ...
 
     async def suggest_dishes(self, ctx: CookContext, count: int = 5) -> list[DishIdea]: ...
 

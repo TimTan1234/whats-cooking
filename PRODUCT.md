@@ -43,6 +43,9 @@ It starts from the user's real kitchen, not from a recipe catalogue: the photo a
 - Ingredient detection from one or more photos, with an editable review step.
 - Per-user pantry, added to by scanning or by hand.
 - Recommendations that consider ingredients on hand, diet and allergies, time, cuisine, skill, and saved pantry and cooking history.
+- Before suggesting, the user picks the kind of dish, can say in their own words what they feel like, and answers up to three tap-to-answer questions written by the AI for that request.
+- Per-user taste: typed favourite foods, plus dish types, cravings, answers and ratings learned over time. Shown on the profile, where the learned part can be cleared.
+- "Today for you": dishes chosen from the user's taste alone, still marked with what the kitchen already has.
 - Full recipe generation; save a recipe; mark it cooked and rate it.
 - Username and password sign-in. Accounts are created by an administrator command; there is no public sign-up.
 - Languages: English and Simplified Chinese. Each user picks one in their profile; screens and generated recipes follow that choice.
@@ -61,7 +64,7 @@ It starts from the user's real kitchen, not from a recipe catalogue: the photo a
 
 ## Product Principles
 
-1. Start from what is in the kitchen. The user's ingredients drive everything; the app never opens with a blank recipe search.
+1. Start from what is in the kitchen. The user's ingredients drive the Cook tab; the app never opens with a blank recipe search. "Today for you" is the one place that starts from taste instead, and it still shows what is in hand.
 2. The user has the last word. Detected ingredients are a draft the user corrects, and AI recipes are suggestions that carry a visible caution where allergies are involved.
 3. Built for a busy pair of hands. Every core step works one-handed on a phone, with few taps and little typing.
 4. Say what is missing. A suggestion always shows what the user has and what they would still need.

@@ -4,7 +4,9 @@ A private recipe app for one household. Photograph your fridge or shopping, corr
 
 - **Scan**: one or more photos become an editable ingredient list.
 - **Kitchen**: each person keeps their own pantry, added to by scanning or by hand.
-- **Cook**: suggestions ranked by how much you already have, following your diet, allergies, time, cuisine and skill, and shaped by what you have saved and cooked before.
+- **Cook**: pick the kind of dish (soup, rice, noodles, meat and steak, …), say what you feel like, and answer a few quick questions the AI asks; suggestions are ranked by how much you already have, following your diet, allergies, time, cuisine and skill.
+- **Today for you**: dishes picked from your taste alone, whatever is in the kitchen. Kept for the rest of the day.
+- **Taste**: each person's choices, cravings, answers and ratings shape later suggestions. The profile shows what has been learned and can forget it.
 - **Recipes**: full method, what to buy, substitutions; save a recipe, log it as cooked, rate it.
 - English and Simplified Chinese, chosen per person.
 - Username and password sign-in for a handful of accounts. No public sign-up.
@@ -107,12 +109,12 @@ Tests use the demo AI and a temporary database, so they need no key and no netwo
 app/
   main.py        application factory, middleware, error pages
   config.py      settings
-  models.py      tables: User, PantryItem, Recipe, CookLog, IdeaSet
+  models.py      tables: User, PantryItem, Recipe, CookLog, IdeaSet, Taste, CookDraft
   auth.py        passwords, sign-in, lockout
   cli.py         account commands
   i18n.py        all screen text, English and Chinese
   ai/            OpenAI-compatible and Google Gemini clients, prompts, demo provider
-  services/      photos, pantry, recommendations, allergy and diet check
+  services/      photos, pantry, recommendations, taste, allergy and diet check
   routers/       one module per tab
   templates/     Jinja2 pages
   static/        app.css, app.js, font, icon
