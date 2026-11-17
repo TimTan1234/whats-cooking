@@ -6,7 +6,7 @@
   <div class="leaf leaf-order">
     <header class="leaf-head">
       <h1>{{ t('cook.order') }}</h1>
-      <p class="leaf-date">{{ today }}</p>
+      <p class="leaf-date">{{ t('questions.step') }}</p>
     </header>
     {{ order_stub(source, options) }}
     <div class="order-body">
@@ -19,10 +19,10 @@
       {% set chosen = picked[qi] %}
       <fieldset class="choices">
         <legend class="legend-prose">{{ q.question }}</legend>
-        <label><input type="radio" name="q{{ qi }}" value=""{% if not chosen %} checked{% endif %}><span>{{ t('questions.either') }}</span></label>
         {% for answer in q.answers %}
         <label><input type="radio" name="q{{ qi }}" value="{{ answer }}"{% if answer == chosen %} checked{% endif %}><span>{{ answer }}</span></label>
         {% endfor %}
+        <label class="choice-either"><input type="radio" name="q{{ qi }}" value=""{% if not chosen %} checked{% endif %}><span>{{ t('questions.either') }}</span></label>
       </fieldset>
       {% endfor %}
     </div>
@@ -35,4 +35,5 @@
     </div>
   </div>
 </form>
+<a class="back" href="/cook?change=1">{{ icon('back') }}{{ t('ideas.change') }}</a>
 {% endblock %}

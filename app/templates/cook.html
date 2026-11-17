@@ -2,11 +2,6 @@
 {% from "_ui.html" import icon, today_button with context %}
 {% block title %}{{ t('cook.title') }}{% endblock %}
 {% block content %}
-<div class="today-strip">
-  <p>{{ t('today.unsure') }}</p>
-  {{ today_button() }}
-</div>
-<p class="hint today-hint">{{ t('today.explain') }}</p>
 <form class="order" method="post" action="/cook/questions" data-busy>
   <div class="leaf leaf-order">
     <header class="leaf-head">
@@ -25,6 +20,9 @@
       <label><input type="radio" name="source" value="pantry"{% if source != 'custom' %} checked{% endif %}><span><b class="order-count">{{ pantry_count }}</b>{{ t('cook.in_kitchen') }}</span></label>
       <label><input type="radio" name="source" value="custom"{% if source == 'custom' %} checked{% endif %}><span>{{ t('cook.source_custom') }}</span></label>
     </fieldset>
+    <p class="order-items">
+      {%- set names = pantry_names | join(sep) -%}
+      {%- if pantry_count > pantry_names | length %}{{ t('cook.items_more', names=names, n=pantry_count - pantry_names | length) }}{% else %}{{ t('cook.items_all', names=names) }}{% endif %}{% if lang == 'en' %} {% endif %}<a href="/#pantry">{{ t('cook.edit_kitchen') }}</a></p>
     {% else %}
     <p class="order-empty">{{ t('kitchen.empty_title') }}</p>
     <a class="btn btn-outline order-scan" href="/scan">{{ icon('scan') }}{{ t('action.scan') }}</a>
@@ -40,9 +38,13 @@
       <fieldset class="choices">
         <legend>{{ t('cook.dish_type') }}</legend>
         <label><input type="radio" name="dish_type" value=""{% if not options.dish_type %} checked{% endif %}><span>{{ t('cook.any') }}</span></label>
-        {% for kind in dish_types %}
+        {% for kind in dish_types[:4] %}
         <label><input type="radio" name="dish_type" value="{{ kind }}"{% if options.dish_type == kind %} checked{% endif %}><span>{{ t('dish.' ~ kind) }}</span></label>
         {% endfor %}
+        {% for kind in dish_types[4:] %}
+        <label class="chip-extra"><input type="radio" name="dish_type" value="{{ kind }}"{% if options.dish_type == kind %} checked{% endif %}><span>{{ t('dish.' ~ kind) }}</span></label>
+        {% endfor %}
+        <label><input class="more-toggle" type="checkbox"{% if options.dish_type in dish_types[4:] %} checked{% endif %}><span>{{ t('cook.more') }}</span></label>
       </fieldset>
       <label class="field"><span>{{ t('cook.craving') }}</span>
         <textarea class="textarea-short" name="craving" rows="2" maxlength="300" placeholder="{{ t('cook.craving_hint') }}">{{ options.craving }}</textarea></label>
@@ -85,9 +87,13 @@
   {# On a phone, Next stays docked above the tab bar until the page reaches it. #}
   <div class="actions actions-dock">
     <div class="actions-form actions-wide">
-      <button class="btn btn-primary btn-wide">{{ t('cook.find') }}{{ icon('next') }}</button>
+      <button class="btn btn-primary btn-wide">{{ t('cook.next') }}{{ icon('next') }}</button>
       <p class="busy" data-busy-panel role="status" hidden>{{ t('cook.asking') }}</p>
     </div>
   </div>
 </form>
+<div class="today-strip">
+  <p>{{ t('today.unsure') }}</p>
+  {{ today_button() }}
+</div>
 {% endblock %}

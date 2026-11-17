@@ -26,6 +26,7 @@ OPEN_ORDER = timedelta(hours=3)  # how long an unfinished order still counts as 
 
 MAX_QUESTIONS = 3
 MAX_ANSWERS = 4
+PANTRY_PREVIEW = 5  # kitchen items named under the source chips
 
 
 def cook_form(request: Request, user: User, session: Session, source: str = "pantry", custom: str = "",
@@ -37,7 +38,7 @@ def cook_form(request: Request, user: User, session: Session, source: str = "pan
                         for rules in (user.diets, user.allergies))
     return render(
         request, "cook.html", user=user, active="cook", invalid=request.session.pop("cook_invalid", ""),
-        pantry_count=len(items), source=source, custom=custom,
+        pantry_count=len(items), pantry_names=[item.name for item in items[:PANTRY_PREVIEW]], source=source, custom=custom,
         options=options or CookOptions(), diets=diets, allergies=allergies, dish_types=recommend.DISH_TYPES,
         cuisines=recommend.CUISINES, meals=recommend.MEALS, times=recommend.TIME_CHOICES,
     )

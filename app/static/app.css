@@ -1156,9 +1156,29 @@ fieldset {
   font-weight: 600;
 }
 
+/* "More" reveals the rarer kinds of dish; the choice itself still posts as one radio group. */
+.choices > label.chip-extra:not(.field) {
+  display: none;
+}
+
+.choices:has(.more-toggle:checked) > label.chip-extra:not(.field) {
+  display: inline-flex;
+}
+
+.choices > label:not(.field):has(.more-toggle:checked) {
+  display: none;
+}
+
 .choices input:checked + span {
   background: var(--ink);
   color: var(--on-ink);
+}
+
+/* "Either is fine" is the default non-answer: picked, but ruled in grey rather than inked like a real answer. */
+.choices > label.choice-either:not(.field) input:checked + span {
+  background: var(--wall);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 var(--rule-w) var(--ink);
 }
 
 .choices input:disabled + span {
@@ -1178,10 +1198,7 @@ fieldset {
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.today-hint {
-  margin: 6px 0 16px;
+  margin-top: 24px;
 }
 
 .today-strip > p {
@@ -1196,7 +1213,8 @@ fieldset {
   flex: 1;
 }
 
-.leaf-source a {
+.leaf-source a,
+.order-items a {
   display: inline-block;
   /* a 44px tap area around one line of small text, without moving the lines around it */
   padding-block: 12px;
@@ -1207,6 +1225,16 @@ fieldset {
 
 .order-source {
   margin-top: 14px;
+}
+
+.order-items {
+  margin-top: 6px;
+  color: var(--mute);
+  font-size: var(--small);
+}
+
+.leaf-order:not(:has(input[name="source"][value="pantry"]:checked)) .order-items {
+  display: none;
 }
 
 .order-count {
