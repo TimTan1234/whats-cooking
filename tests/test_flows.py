@@ -448,7 +448,7 @@ def test_questions_continue_the_order_and_show_what_was_asked(mei):
     assert "<h1>Tonight&#39;s order</h1>" in page and "2 quick questions" in page
     stub = re.sub(r"<[^>]+>", "", re.search(r'<p class="order-stub-line">(.*?)</p>', page, re.S).group(1))
     assert stub == "Soup · “Something warm with egg and plenty of…” · 2 in your kitchen · 30 min"
-    assert 'class="order-stub-change" href="/cook?change=1"' in page
+    assert 'order-stub-change' not in page and 'class="back" href="/cook?change=1"' in page
 
 
 def test_failed_dishes_after_answering_go_back_to_the_answered_questions(mei, monkeypatch):

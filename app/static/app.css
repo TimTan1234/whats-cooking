@@ -567,6 +567,32 @@ main > .back:first-child {
   text-transform: uppercase;
 }
 
+/* A route in the leaf head, on its own line at the end: small print with a 44px tap area around it. */
+.leaf-head:has(.quiet-link) {
+  flex-wrap: wrap;
+  row-gap: 0;
+}
+
+.quiet-link {
+  flex: 0 0 100%;
+  text-align: right;
+  padding: 15px 0;
+  margin-block: -9px -15px;
+  border: 0;
+  background: none;
+  font: 600 var(--small) / 1 var(--cond);
+  letter-spacing: var(--head-track);
+  text-transform: uppercase;
+  text-decoration: underline 1.5px;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.quiet-link:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
 .leaf-source {
   margin-top: 4px;
   color: var(--mute);
@@ -1156,6 +1182,28 @@ fieldset {
   font-weight: 600;
 }
 
+/* The kinds of dish sit in even columns, two on a phone and three from 560px, so the six chips make
+   whole rows and More never stands alone. */
+.choices-kind {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.choices-kind legend {
+  grid-column: 1 / -1;
+}
+
+.choices-kind > label:not(.field) > span {
+  width: 100%;
+  padding-inline: 12px;
+}
+
+@media (min-width: 560px) {
+  .choices-kind {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 /* "More" reveals the rarer kinds of dish; the choice itself still posts as one radio group. */
 .choices > label.chip-extra:not(.field) {
   display: none;
@@ -1165,8 +1213,31 @@ fieldset {
   display: inline-flex;
 }
 
-.choices > label:not(.field):has(.more-toggle:checked) {
+/* The toggle stays in the row as a plain chip with a + that turns into a - once the rest are open,
+   so a chosen kind is the only inked chip. */
+.choices > label:not(.field) > .more-toggle + span {
+  gap: 8px;
+  padding-inline: 12px 16px;
+}
+
+.choices .more-toggle:checked + span {
+  background: var(--leaf);
+  color: var(--ink);
+}
+
+.choices .more-toggle + span .icon:last-of-type,
+.choices .more-toggle + span .more-shut,
+.choices .more-toggle:checked + span .icon:first-of-type,
+.choices .more-toggle:checked + span .more-open {
   display: none;
+}
+
+.choices .more-toggle:checked + span .icon:last-of-type {
+  display: block;
+}
+
+.choices .more-toggle:checked + span .more-shut {
+  display: inline;
 }
 
 .choices input:checked + span {
@@ -1275,6 +1346,13 @@ fieldset {
 
 textarea[aria-invalid="true"] {
   border-color: var(--red);
+}
+
+/* A typed list starts short, so the dish kinds stay above the docked button, and grows as lines are added. */
+.custom-list textarea {
+  min-height: 6.5rem;
+  max-height: 11rem;
+  field-sizing: content;
 }
 
 .leaf-order:has(input[name="source"][value="pantry"]:checked) .custom-list {

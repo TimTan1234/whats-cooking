@@ -7,6 +7,7 @@
     <header class="leaf-head">
       <h1>{{ t('cook.order') }}</h1>
       <p class="leaf-date">{{ today }}</p>
+      <button class="quiet-link" type="submit" form="today" data-busy-text="{{ t('today.busy_short') }}">{{ t('today.pick') }}</button>
     </header>
     {% set sep = ', ' if lang == 'en' else '、' %}
     <p class="leaf-source">
@@ -30,12 +31,12 @@
     {% endif %}
     <div class="custom-list">
       <label class="field"><span>{{ t('cook.custom_label') }}</span>
-        <textarea name="custom" rows="5" maxlength="6000"
+        <textarea name="custom" rows="3" maxlength="6000" placeholder="{{ t('cook.custom_hint') }}"
           {%- if invalid == 'custom' %} aria-invalid="true" aria-describedby="custom-error" autofocus{% endif %}>{{ custom }}</textarea></label>
       {% if invalid == 'custom' %}<p class="field-error" id="custom-error">{{ icon('alert') }}{{ t('cook.empty_custom') }}</p>{% endif %}
     </div>
     <div class="order-body">
-      <fieldset class="choices">
+      <fieldset class="choices choices-kind">
         <legend>{{ t('cook.dish_type') }}</legend>
         <label><input type="radio" name="dish_type" value=""{% if not options.dish_type %} checked{% endif %}><span>{{ t('cook.any') }}</span></label>
         {% for kind in dish_types[:4] %}
@@ -44,7 +45,7 @@
         {% for kind in dish_types[4:] %}
         <label class="chip-extra"><input type="radio" name="dish_type" value="{{ kind }}"{% if options.dish_type == kind %} checked{% endif %}><span>{{ t('dish.' ~ kind) }}</span></label>
         {% endfor %}
-        <label><input class="more-toggle" type="checkbox"{% if options.dish_type in dish_types[4:] %} checked{% endif %}><span>{{ t('cook.more') }}</span></label>
+        <label><input class="more-toggle" type="checkbox"{% if options.dish_type in dish_types[4:] %} checked{% endif %}><span>{{ icon('plus') }}{{ icon('minus') }}<b class="more-open">{{ t('cook.more') }}</b><b class="more-shut">{{ t('cook.fewer') }}</b></span></label>
       </fieldset>
       <label class="field"><span>{{ t('cook.craving') }}</span>
         <textarea class="textarea-short" name="craving" rows="2" maxlength="300" placeholder="{{ t('cook.craving_hint') }}">{{ options.craving }}</textarea></label>
@@ -94,6 +95,6 @@
 </form>
 <div class="today-strip">
   <p>{{ t('today.unsure') }}</p>
-  {{ today_button() }}
+  {{ today_button(form_id='today') }}
 </div>
 {% endblock %}

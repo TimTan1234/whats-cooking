@@ -249,11 +249,36 @@
     form.querySelectorAll("button, input[type=file]").forEach(function (control) {
       control.disabled = busy;
     });
+    // Buttons elsewhere on the page that submit this form say so themselves while it works.
+    if (form.id) {
+      document.querySelectorAll('button[form="' + form.id + '"]').forEach(function (control) {
+        var busyText = control.getAttribute("data-busy-text");
+        if (busyText && busy) {
+          control.setAttribute("data-label", control.textContent);
+          control.textContent = busyText;
+        } else if (control.hasAttribute("data-label")) {
+          control.textContent = control.getAttribute("data-label");
+        }
+        control.disabled = busy;
+      });
+    }
+    // One slow request at a time: the other waiting forms on the page are held while this one works.
+    document.querySelectorAll("form[data-busy]").forEach(function (other) {
+      if (other === form) return;
+      other.querySelectorAll("button").forEach(function (control) {
+        control.disabled = busy;
+      });
+      if (other.id) {
+        document.querySelectorAll('button[form="' + other.id + '"]').forEach(function (control) {
+          control.disabled = busy;
+        });
+      }
+    });
   }
 
   document.querySelectorAll("form[data-busy]").forEach(function (form) {
     form.addEventListener("submit", function (event) {
-      if (form.getAttribute("aria-busy") === "true") {
+      if (document.querySelector("form[aria-busy=true]")) {
         event.preventDefault();
         return;
       }

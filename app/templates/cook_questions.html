@@ -8,7 +8,7 @@
       <h1>{{ t('cook.order') }}</h1>
       <p class="leaf-date">{{ t('questions.step') }}</p>
     </header>
-    {{ order_stub(source, options) }}
+    {{ order_stub(source, options, with_change=false) }}
     <div class="order-body">
       <div class="questions-head">
         <h2 class="leaf-sub">{{ t('questions.count', n=questions | length) }}</h2>

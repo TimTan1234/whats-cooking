@@ -31,6 +31,7 @@ PANTRY_PREVIEW = 5  # kitchen items named under the source chips
 
 def cook_form(request: Request, user: User, session: Session, source: str = "pantry", custom: str = "",
               options: CookOptions | None = None):
+    custom = custom if custom.strip() else ""  # a list of only blanks is shown empty, example and all
     items = pantry.list_items(session, user)
     if not items and source == "pantry" and not custom:
         source = "custom"
