@@ -198,6 +198,8 @@
     form.addEventListener("keydown", function (event) {
       var target = event.target;
       if (event.key !== "Enter" || target.tagName !== "INPUT" || target.type === "checkbox") return;
+      // Enter that confirms a pinyin candidate belongs to the input method (keyCode 229 covers Safari).
+      if (event.isComposing || event.keyCode === 229) return;
       event.preventDefault();
       var fields = Array.prototype.slice.call(form.querySelectorAll("input:not([type=hidden]):not([type=checkbox])"));
       var next = fields[fields.indexOf(target) + 1];
